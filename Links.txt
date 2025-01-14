@@ -1,0 +1,4 @@
+ 
+https://thinkinginqt.com/doc/qtnetwork/qtnetwork-threadedfortuneserver-example.html#
+
+https://thinkinginqt.com/doc/qtnetwork/qtnetwork-fortuneclient-example.html#
