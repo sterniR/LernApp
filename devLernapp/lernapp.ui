@@ -35,9 +35,9 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="label1_1">
             <property name="text">
-             <string>TextLabel</string>
+             <string>Lernapp - Editor</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -58,9 +58,9 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_3">
+           <widget class="QPushButton" name="button1_1">
             <property name="text">
-             <string>PushButton</string>
+             <string>Lerninhalte erstellen</string>
             </property>
            </widget>
           </item>
@@ -78,9 +78,9 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="button1_2">
             <property name="text">
-             <string>PushButton</string>
+             <string>Lerninhalte bearbeiten</string>
             </property>
            </widget>
           </item>
@@ -98,9 +98,9 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="button1_3">
             <property name="text">
-             <string>PushButton</string>
+             <string>Lerninhalte hochladen</string>
             </property>
            </widget>
           </item>
@@ -139,9 +139,9 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="label2_1">
             <property name="text">
-             <string>TextLabel</string>
+             <string>Fragen in die Box schreiben.</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -162,7 +162,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QTextEdit" name="textEdit"/>
+           <widget class="QTextEdit" name="textEdit2_1"/>
           </item>
           <item>
            <spacer name="verticalSpacer_8">
@@ -193,9 +193,9 @@
              </spacer>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton">
+             <widget class="QRadioButton" name="radiobutton2_1">
               <property name="text">
-               <string>RadioButton</string>
+               <string>Wahr</string>
               </property>
              </widget>
             </item>
@@ -213,9 +213,9 @@
              </spacer>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_2">
+             <widget class="QRadioButton" name="radiobutton2_2">
               <property name="text">
-               <string>RadioButton</string>
+               <string>Falsch</string>
               </property>
              </widget>
             </item>
@@ -250,23 +250,23 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
-             <widget class="QPushButton" name="pushButton_6">
+             <widget class="QPushButton" name="button2_1">
               <property name="text">
-               <string>PushButton</string>
+               <string>Liste öffnen</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QPushButton" name="button2_2">
               <property name="text">
-               <string>PushButton</string>
+               <string>Startseite</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QPushButton" name="button2_3">
               <property name="text">
-               <string>PushButton</string>
+               <string>Neue Frage erstellen</string>
               </property>
              </widget>
             </item>
@@ -294,9 +294,9 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLabel" name="label_3">
+           <widget class="QLabel" name="label3_1">
             <property name="text">
-             <string>TextLabel</string>
+             <string>Übersicht der Fragen</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -317,7 +317,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QListView" name="listView"/>
+           <widget class="QListView" name="listView3_1"/>
           </item>
           <item>
            <spacer name="verticalSpacer_12">
@@ -348,9 +348,9 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_7">
+             <widget class="QPushButton" name="button3_1">
               <property name="text">
-               <string>PushButton</string>
+               <string>Startseite</string>
               </property>
              </widget>
             </item>
@@ -391,9 +391,9 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="label4_1">
             <property name="text">
-             <string>TextLabel</string>
+             <string>Fragen hochladen. Bitte ankreuzen:</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -414,7 +414,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QListWidget" name="listWidget"/>
+           <widget class="QListWidget" name="listWidget4_1"/>
           </item>
           <item>
            <spacer name="verticalSpacer_15">
@@ -432,23 +432,23 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
-             <widget class="QPushButton" name="pushButton_10">
+             <widget class="QPushButton" name="button4_1">
               <property name="text">
-               <string>PushButton</string>
+               <string>Lokal speichern</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_9">
+             <widget class="QPushButton" name="button4_2">
               <property name="text">
-               <string>PushButton</string>
+               <string>Startseite</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_8">
+             <widget class="QPushButton" name="button4_3">
               <property name="text">
-               <string>PushButton</string>
+               <string>Hochladen</string>
               </property>
              </widget>
             </item>
@@ -471,8 +471,32 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMen">
+    <property name="title">
+     <string>Menü</string>
+    </property>
+    <addaction name="actionNext"/>
+    <addaction name="actionBack"/>
+   </widget>
+   <widget class="QMenu" name="menuSeite">
+    <property name="title">
+     <string>Seite : </string>
+    </property>
+   </widget>
+   <addaction name="menuMen"/>
+   <addaction name="menuSeite"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNext">
+   <property name="text">
+    <string>Nächste Seite</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="text">
+    <string>Zurück</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

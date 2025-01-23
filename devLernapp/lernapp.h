@@ -17,6 +17,17 @@ public:
     Lernapp(QWidget *parent = nullptr);
     ~Lernapp();
 
+private slots:
+    void on_actionNext_triggered();
+
+    void on_actionBack_triggered();
+
+    void on_button1_1_clicked();
+
+    void on_button1_2_clicked();
+
+    void on_button1_3_clicked();
+
 private:
     Ui::Lernapp *ui;
 };
