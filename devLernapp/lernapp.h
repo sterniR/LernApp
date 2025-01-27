@@ -8,6 +8,7 @@
 #include <QSqlError>
 #include <QMessageBox>
 #include <QSqlQueryModel>
+#include <QSqlTableModel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

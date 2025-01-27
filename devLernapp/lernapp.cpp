@@ -155,6 +155,19 @@ void Lernapp::createDataEntry()
     //model->setHeaderData(3, Qt::Horizontal, tr("erstellt_am")); //Datum
     ui->tableView3_1->setModel(model);
     ui->tableView3_1->show();
+
+    QSqlTableModel *model2 = new QSqlTableModel;
+    model2->setTable("Fragen");
+    model2->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model2->select();
+    model2->setHeaderData(1, Qt::Horizontal, tr("Frage"));
+    model2->setHeaderData(2, Qt::Horizontal, tr("Wahr/Falsch"));
+    model2->setHeaderData(3, Qt::Horizontal, tr("Erstellt von"));
+    model2->setHeaderData(4, Qt::Horizontal, tr("Erstellt am"));
+
+    ui->tableView3_2->setModel(model2);
+    ui->tableView3_2->hideColumn(0);
+    ui->tableView3_2->show();
 }
 
 
