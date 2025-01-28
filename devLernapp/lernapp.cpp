@@ -44,6 +44,7 @@ Lernapp::~Lernapp()
 
 void Lernapp::on_button1_1_clicked()
 {
+    createDataEntry();
     ui->stackedWidget->setCurrentIndex(1);
 }
 void Lernapp::on_button1_2_clicked()
@@ -69,11 +70,18 @@ void Lernapp::on_button2_2_clicked() //Startseite
 }
 void Lernapp::on_button2_3_clicked() // Frage speichern
 {
-    QString frageText = ui->textEdit2_1->toPlainText();
-    QString erstelltVonText = ui->lineEdit2_1->displayText();
-    QString istWahrText;
+    frageText = ui->textEdit2_1->toPlainText();
+    erstelltVonText = ui->lineEdit2_1->displayText();
 
-    if(ui->radiobutton2_1->isChecked())
+    if(ui->textEdit2_1->toPlainText() == "")
+    {
+        QMessageBox::warning(this,"Kein Text","Bitte geben Sie eine Frage ein.");
+    }
+    else if(frageTextKontrolle == frageText)
+    {
+        QMessageBox::warning(this,"Gleiche Frage","Diese Frage existiert schon.\nBitte aendern Sie die Frage.");
+    }
+    else if(ui->radiobutton2_1->isChecked())
     {
         istWahrText = "1";
     }
@@ -83,20 +91,34 @@ void Lernapp::on_button2_3_clicked() // Frage speichern
     }
     else
     {
-        QMessageBox::warning(this,"Achtung", "Bitte 'Wahr' oder 'Falsch' auswaehlen.");
+        QMessageBox::warning(this,"Kein Wahrheitswert ausgeweahlt", "Bitte 'Wahr' oder 'Falsch' auswaehlen.");
     }
 
-    QSqlQuery query(database);
-    query.prepare("INSERT OR IGNORE INTO Fragen ("
-                  "frage_text, ist_wahr, erstellt_von)"
-                  "VALUES ('" +
-                  frageText + "', '" + istWahrText + "', '" + erstelltVonText +
-                  "');");
-    if(!query.exec())
-        error_query(query.lastError());
 
-    createDataEntry();
+    if(ui->textEdit2_1->toPlainText() == "")
+    {
 
+    }
+    else if((!ui->radiobutton2_1->isChecked() && !ui->radiobutton2_2->isChecked()))
+    {
+
+    }
+    else if(frageTextKontrolle == frageText)
+    {
+
+    }
+    else
+    {
+        QSqlQuery query(database);
+        query.prepare("INSERT OR IGNORE INTO Fragen ("
+                      "frage_text, ist_wahr, erstellt_von)"
+                      "VALUES ('" +
+                      frageText + "', '" + istWahrText + "', '" + erstelltVonText +
+                      "');");
+        if(!query.exec())
+            error_query(query.lastError());
+        createDataEntry();
+    }
 }
 
 //Seite 2
@@ -136,38 +158,31 @@ void Lernapp::on_actionBack_triggered()
 
 void Lernapp::error_database(QSqlDatabase error)
 {
-    QMessageBox::warning(nullptr, tr("Fehler Query"),tr("Fehler: %1").arg(error.lastError().text()));
+    QMessageBox::warning(nullptr, tr("Fehler in der Datenbank"),tr("Fehler: %1").arg(error.lastError().text()));
 }
 void Lernapp::error_query(QSqlError error)
 {
-    QMessageBox::warning(nullptr, tr("Fehler Database"),tr("Fehler: %1").arg(error.text()));
+    QMessageBox::warning(nullptr, tr("Fehler in der Query"),tr("Fehler: %1").arg(error.text()));
 
 }
 
 //Funktionen
 void Lernapp::createDataEntry()
 {
-    QSqlQueryModel *model = new QSqlQueryModel;
-    model->setQuery("SELECT frage_text, ist_wahr, erstellt_von FROM Fragen");
-    model->setHeaderData(0, Qt::Horizontal, tr("frage_text"));
-    model->setHeaderData(1, Qt::Horizontal, tr("ist_wahr"));
-    model->setHeaderData(2, Qt::Horizontal, tr("erstellt_von"));
-    //model->setHeaderData(3, Qt::Horizontal, tr("erstellt_am")); //Datum
-    ui->tableView3_1->setModel(model);
-    ui->tableView3_1->show();
+    frageTextKontrolle = ui->textEdit2_1->toPlainText();
 
-    QSqlTableModel *model2 = new QSqlTableModel;
-    model2->setTable("Fragen");
-    model2->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model2->select();
-    model2->setHeaderData(1, Qt::Horizontal, tr("Frage"));
-    model2->setHeaderData(2, Qt::Horizontal, tr("Wahr/Falsch"));
-    model2->setHeaderData(3, Qt::Horizontal, tr("Erstellt von"));
-    model2->setHeaderData(4, Qt::Horizontal, tr("Erstellt am"));
+    QSqlTableModel *model = new QSqlTableModel;
+    model->setTable("Fragen");
+    model->setEditStrategy(QSqlTableModel::OnFieldChange);
+    model->select();
+    model->setHeaderData(1, Qt::Horizontal, tr("Frage"));
+    model->setHeaderData(2, Qt::Horizontal, tr("Wahr/Falsch"));
+    model->setHeaderData(3, Qt::Horizontal, tr("Erstellt von"));
+    model->setHeaderData(4, Qt::Horizontal, tr("Erstellt am"));
 
-    ui->tableView3_2->setModel(model2);
-    ui->tableView3_2->hideColumn(0);
-    ui->tableView3_2->show();
+    ui->tableView2_1->setModel(model);
+    ui->tableView2_1->hideColumn(0);
+    ui->tableView2_1->show();
 }
 
 

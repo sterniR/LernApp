@@ -25,6 +25,7 @@ public:
     ~Lernapp();
 
     QSqlDatabase database;
+    QString frageText, frageTextKontrolle, erstelltVonText, istWahrText;
 
 private slots:
 

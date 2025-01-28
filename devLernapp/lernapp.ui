@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -127,6 +127,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="button1_2">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Lerninhalte bearbeiten</string>
               </property>
@@ -219,6 +222,19 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
+           <widget class="QLabel" name="label2_1">
+            <property name="text">
+             <string>Liste der Fragen:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignmentFlag::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableView" name="tableView2_1"/>
+          </item>
+          <item>
            <spacer name="verticalSpacer_6">
             <property name="orientation">
              <enum>Qt::Orientation::Vertical</enum>
@@ -232,7 +248,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLabel" name="label2_1">
+           <widget class="QLabel" name="label2_3">
             <property name="text">
              <string>Fragen in die Box schreiben.</string>
             </property>
@@ -240,19 +256,6 @@
              <set>Qt::AlignmentFlag::AlignCenter</set>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_9">
@@ -401,6 +404,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="button2_1">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Liste öffnen</string>
               </property>
@@ -457,9 +463,6 @@
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QTableView" name="tableView3_1"/>
-            </item>
-            <item>
-             <widget class="QTableView" name="tableView3_2"/>
             </item>
            </layout>
           </item>
