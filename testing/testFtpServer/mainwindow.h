@@ -2,8 +2,17 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <qlistwidget.h>
-#include <QHostAddress>
+#include <QDebug>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QFile>
+#include <QFileInfo>
+#include <QFileDialog>
+#include <QListWidget>
+#include <QMessageBox>
+#include <QThread>
+#include "ftpcontrolchannel.h"
+#include "ftpdatachannel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,6 +27,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void getFileList();
 
 private slots:
     void on_openButton_clicked();
@@ -36,5 +46,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    FtpDataChannel *dataChannel;
+    FtpControlChannel * controlChannel;
+    QString ftpAddress, username, password, uploadFileName, downloadFileName;
+    QStringList fileList;
 };
 #endif // MAINWINDOW_H

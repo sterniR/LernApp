@@ -6,6 +6,19 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    dataChannel = new FtpDataChannel(this);
+
+    connect(dataChannel, &FtpDataChannel::dataReceived, this, &MainWindow::dataReceived);
+    connect(controlChannel, &FtpControlChannel::reply, this, &MainWindow::serverReply);
+    connect(controlChannel, &FtpControlChannel::opened, this, &MainWindow::serverConnected);
+
+    controlChannel = new FtpControlChannel(this);
+
+    ftpAddress = "127.0.0.1/";
+    username = "myuser";
+    password = "123456?!§$%";
+
+    controlChannel->connectToServer(ftpAddress);
 }
 
 MainWindow::~MainWindow()
@@ -13,26 +26,53 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::getFileList() {
+    controlChannel->command("PORT", dataChannel->portspec().toUtf8());
+    controlChannel->command("MLSD", "");
+}
+
 void MainWindow::on_openButton_clicked()
 {
-
+    QString fileName = QFileDialog::getOpenFileName(this, "Select File", qApp->applicationFilePath());
+    ui->uploadFileInput->setText(fileName);
 }
 
 
 void MainWindow::on_uploadButton_clicked()
 {
-
+    QFile *file = new QFile(ui->uploadFileInput->text());
+    QFileInfo fileInfo(*file);
+    uploadFileName = fileInfo.fileName();
+    controlChannel->command("PORT", dataChannel->portspec().toUtf8());
+    controlChannel->command("STOR", uploadFileName.toUtf8());
 }
 
 
 void MainWindow::on_setFolderButton_clicked()
 {
-
+    QString folder = QFileDialog::getExistingDirectory(this, tr("Open Directory"), qApp->applicationDirPath(), QFileDialog::ShowDirsOnly);
+    ui->downloadPath->setText(folder);
 }
 
 
 void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 {
-
+    downloadFileName = item->text();
+    QString folder = ui->downloadPath->text();
+    if(folder != "" && QDir(folder).exists()) {
+        controlChannel->command("PORT", dataChannel->portspec().toUtf8());
+        controlChannel->command("RETR", downloadFileName.toUtf8());
+    } else {
+        QMessageBox::warning(this, "Invalid Path", "Please set the download path before download.");
+    }
 }
 
+void MainWindow::serverConnected(const QHostAddress &address, int port) {
+    qDebug() << "Listening to: " << address << port;
+    dataChannel->listen(address);
+    controlChannel->command("USER", username.toUtf8());
+    controlChannel->command("PASS", password.toUtf8());
+    getFileList();
+}
+
+void MainWindow::serverReply(int code,)
