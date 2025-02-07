@@ -14,9 +14,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(controlChannel, &FtpControlChannel::opened, this, &MainWindow::serverConnected);
 
 
-    ftpAddress = "127.0.0.1";
-    username = "test";
-    password = "123456";
+    ftpAddress = "138.199.195.70";
+    username = "bob";
+    password = "Pawesafe?";
 
     controlChannel->connectToServer(ftpAddress);
 }
@@ -117,3 +117,4 @@ void MainWindow::dataReceived(const QByteArray &data) {
         }
     }
 }
+
