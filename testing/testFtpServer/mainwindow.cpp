@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ftpAddress = "138.199.195.70";
     username = "bob";
-    password = "Pawesafe?";
+    password = "Kartoffel123?!";
 
     controlChannel->connectToServer(ftpAddress);
 }
