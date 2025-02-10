@@ -10,6 +10,9 @@
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
 
+#include <iostream>
+#include <fstream>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Lernapp;
@@ -27,7 +30,12 @@ public:
     QSqlDatabase database;
     QString frageText, frageTextKontrolle, erstelltVonText, istWahrText;
 
+
 private slots:
+
+    size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream);
+
+    void downloadFTPS();
 
     //Database
     void error_database(QSqlDatabase);
@@ -55,10 +63,13 @@ private slots:
 
     void on_button4_2_clicked();
 
+    void on_button4_4_clicked();
+
     // Debugging
     void on_actionNext_triggered();
 
     void on_actionBack_triggered();
+
 private:
     Ui::Lernapp *ui;
 };

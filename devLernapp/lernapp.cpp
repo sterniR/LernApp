@@ -1,5 +1,6 @@
 #include "lernapp.h"
 #include "./ui_lernapp.h"
+#include "curl/curl.h"
 
 Lernapp::Lernapp(QWidget *parent)
     : QMainWindow(parent)
@@ -7,6 +8,7 @@ Lernapp::Lernapp(QWidget *parent)
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
+
 
     // Datenbank ertellen
     database = QSqlDatabase::addDatabase("QSQLITE");
@@ -52,9 +54,10 @@ void Lernapp::on_button1_2_clicked()
     createDataEntry();
     ui->stackedWidget->setCurrentIndex(2);
 }
-void Lernapp::on_button1_3_clicked()
+void Lernapp::on_button1_3_clicked() // Datenbank hochladen
 {
     ui->stackedWidget->setCurrentIndex(3);
+
 }
 
 //Seite 1
@@ -139,6 +142,11 @@ void Lernapp::on_button4_2_clicked()
     ui->stackedWidget->setCurrentIndex(0);
 }
 
+void Lernapp::on_button4_4_clicked()
+{
+
+}
+
 // Debugging
 
 void Lernapp::on_actionNext_triggered()
@@ -184,6 +192,4 @@ void Lernapp::createDataEntry()
     ui->tableView2_1->hideColumn(0);
     ui->tableView2_1->show();
 }
-
-
 
