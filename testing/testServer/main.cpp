@@ -1,15 +1,20 @@
-#include "crow.h"
-//#include "crow_all.h"
+#include <QCoreApplication>
+#include <QThread>
+#include "ftpsclient.h"
 
-int main()
-{
-    crow::SimpleApp app;
+int main(int argc, char *argv[]) {
+    QCoreApplication a(argc, argv);
 
-    //define your endpoint at the root directory
-    CROW_ROUTE(app, "/")([](){
-        auto page = crow::mustache::load_text("fancypage.html");
-        return page;
-    });
+    FtpsClient client;
+    client.connectToServer("deinserver.com", 21);
 
-    app.port(18080).multithreaded().run();
+    // Warte kurz, bis die Verbindung aufgebaut ist
+    QThread::sleep(2);
+
+    client.login("benutzername", "passwort");
+    QThread::sleep(2);
+
+    client.listDirectory();
+
+    return a.exec();
 }

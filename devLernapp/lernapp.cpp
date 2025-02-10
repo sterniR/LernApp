@@ -54,7 +54,7 @@ void Lernapp::on_button1_2_clicked()
 }
 void Lernapp::on_button1_3_clicked()
 {
-
+    ui->stackedWidget->setCurrentIndex(3);
 }
 
 //Seite 1

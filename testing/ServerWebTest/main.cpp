@@ -1,16 +1,22 @@
 #include "mainwindow.h"
-#include "crow.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
+    w.connectToServer("138.199.195.70", 21);
 
-    crow::SimpleApp app;
-    CROW_ROUTE(app, "/")([](){
-        auto page = crow::mustache::load_text()
-    });
+    // Warte kurz, bis die Verbindung aufgebaut ist
+    QThread::sleep(2);
 
+    w.login("bob", "Kartoffel123?!");
+    QThread::sleep(2);
+
+    w.listDirectory();
+
+    QThread::sleep(2);
+
+    // w.show();
     return a.exec();
 }

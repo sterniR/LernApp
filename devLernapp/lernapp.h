@@ -51,9 +51,9 @@ private slots:
 
     void on_button3_1_clicked();
 
-    void on_button4_2_clicked();
-
     void on_button3_2_clicked();
+
+    void on_button4_2_clicked();
 
     // Debugging
     void on_actionNext_triggered();
