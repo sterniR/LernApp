@@ -1,6 +1,6 @@
 #include "lernapp.h"
+#include <curl/curl.h>
 
-#include <QApplication>
 
 int main(int argc, char *argv[])
 {

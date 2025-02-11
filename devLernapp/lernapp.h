@@ -9,9 +9,11 @@
 #include <QMessageBox>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
+#include <QDir>
 
-#include <iostream>
 #include <fstream>
+#include <QApplication>
+#include <QUrl>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,12 +32,11 @@ public:
     QSqlDatabase database;
     QString frageText, frageTextKontrolle, erstelltVonText, istWahrText;
 
-
+    size_t WriteCallBack(void* contents, size_t size, size_t nmemb, void* userp);
 private slots:
 
-    size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream);
-
-    void downloadFTPS();
+    //Server Anfragen
+    void connect();
 
     //Database
     void error_database(QSqlDatabase);

@@ -1,6 +1,10 @@
 #include "lernapp.h"
 #include "./ui_lernapp.h"
-#include "curl/curl.h"
+
+#include <curl/curl.h>
+#include <fstream>
+#include <QApplication>
+#include <QUrl>
 
 Lernapp::Lernapp(QWidget *parent)
     : QMainWindow(parent)
@@ -8,7 +12,6 @@ Lernapp::Lernapp(QWidget *parent)
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
-
 
     // Datenbank ertellen
     database = QSqlDatabase::addDatabase("QSQLITE");
@@ -40,6 +43,11 @@ Lernapp::Lernapp(QWidget *parent)
 Lernapp::~Lernapp()
 {
     delete ui;
+}
+
+void Lernapp::connect()
+{
+
 }
 
 //Seite 0
@@ -144,7 +152,51 @@ void Lernapp::on_button4_2_clicked()
 
 void Lernapp::on_button4_4_clicked()
 {
+    QString ftpUrl = "ftp://138.199.195.70:21/files/test.txt";
+    // Projektverzeichnis ermitteln
+    QString projectDir = QCoreApplication::applicationDirPath();
 
+    // Download-Ordner setzen
+    QString downloadDir = projectDir + "/download";
+
+    // Sicherstellen, dass der "download"-Ordner existiert
+    QDir().mkpath(downloadDir);
+
+    // Dateinamen aus der URL extrahieren
+    QString fileName = QUrl(ftpUrl).fileName();
+    QString filePath = downloadDir + "/" + fileName;
+    std::string filePathStd = filePath.toStdString();
+
+    // Datei im "download"-Ordner speichern
+    std::ofstream file(filePathStd, std::ios::binary);
+    if (!file) {
+        qDebug() << "Fehler: Datei konnte nicht erstellt werden!";
+    }
+
+    CURL* curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, ftpUrl.toStdString().c_str());
+        curl_easy_setopt(curl, CURLOPT_USERPWD, "bob:Kartoffel123?!");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Lernapp::WriteCallBack);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &file);
+
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK)
+            qDebug() << "curl error:" << curl_easy_strerror(res);
+        else
+            qDebug() << "Download erfolgreich! Datei gespeichert unter:" << filePath;
+
+    }
+}
+
+size_t Lernapp::WriteCallBack(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    std::ofstream* file = static_cast<std::ofstream*>(userp);
+    file->write(static_cast<char*>(contents), size * nmemb);
+    return size * nmemb;
 }
 
 // Debugging
@@ -192,4 +244,3 @@ void Lernapp::createDataEntry()
     ui->tableView2_1->hideColumn(0);
     ui->tableView2_1->show();
 }
-

@@ -1,0 +1,5 @@
+curl --ftp-ssl-reqd -k -u username:'pass' ftp://138.199.195.70:21/files/ -Q "DELE /files/Datenbank.sqlite3"
+
+-O Download
+-T Upload
+-Q Custom Command
