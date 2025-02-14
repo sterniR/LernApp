@@ -1,10 +1,11 @@
 #include "lernapp.h"
 #include "./ui_lernapp.h"
+#include "curl/curl.h"
 
-#include <curl/curl.h>
 #include <fstream>
 #include <QApplication>
 #include <QUrl>
+#include <iostream>
 
 Lernapp::Lernapp(QWidget *parent)
     : QMainWindow(parent)
@@ -12,6 +13,7 @@ Lernapp::Lernapp(QWidget *parent)
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
+    // QVBoxLayout* layoutTree = new QVBoxLayout(this);
 
     // Datenbank ertellen
     database = QSqlDatabase::addDatabase("QSQLITE");
@@ -62,10 +64,12 @@ void Lernapp::on_button1_2_clicked()
     createDataEntry();
     ui->stackedWidget->setCurrentIndex(2);
 }
-void Lernapp::on_button1_3_clicked() // Datenbank hochladen
+void Lernapp::on_button1_3_clicked() // Datenbank öffnen
 {
     ui->stackedWidget->setCurrentIndex(3);
 
+    ui->treeWidget->setColumnCount(1);
+    ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
 }
 
 //Seite 1
@@ -152,6 +156,9 @@ void Lernapp::on_button4_2_clicked()
 
 void Lernapp::on_button4_4_clicked()
 {
+    CURL *curl;
+    CURLcode res;
+
     QString ftpUrl = "ftp://138.199.195.70:21/files/test.txt";
     // Projektverzeichnis ermitteln
     QString projectDir = QCoreApplication::applicationDirPath();
@@ -173,9 +180,6 @@ void Lernapp::on_button4_4_clicked()
         qDebug() << "Fehler: Datei konnte nicht erstellt werden!";
     }
 
-    CURL* curl;
-    CURLcode res;
-
     curl = curl_easy_init();
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, ftpUrl.toStdString().c_str());
@@ -184,21 +188,36 @@ void Lernapp::on_button4_4_clicked()
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &file);
 
         res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
         if (res != CURLE_OK)
             qDebug() << "curl error:" << curl_easy_strerror(res);
         else
             qDebug() << "Download erfolgreich! Datei gespeichert unter:" << filePath;
 
     }
+    curl_global_cleanup();
 }
 
-size_t Lernapp::WriteCallBack(void *contents, size_t size, size_t nmemb, void *userp)
-{
-    std::ofstream* file = static_cast<std::ofstream*>(userp);
-    file->write(static_cast<char*>(contents), size * nmemb);
-    return size * nmemb;
-}
+void Lernapp::on_button4_5_clicked() {
+    ui->treeWidget->setColumnCount(1);
+    ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
 
+    // FTP-Dateien abrufen
+    QString ftpUrl = "ftp://138.199.195.70:21/files/";
+    QString username = "bob";  // Falls anonym, einfach leer lassen
+    QString password = "Kartoffel123?!";  // Falls anonym, einfach leer lassen
+    QStringList files = getFTPFileList(ftpUrl, username, password);
+
+    // Dateien zum TreeWidget hinzufügen
+    for (const QString& file : files) {
+        QTreeWidgetItem* item = new QTreeWidgetItem(ui->treeWidget);
+        item->setText(0, file);
+        ui->treeWidget->addTopLevelItem(item);
+    }
+
+    // layoutTree->addWidget(ui->treeWidget);
+    // setLayout(layoutTree);
+}
 // Debugging
 
 void Lernapp::on_actionNext_triggered()
@@ -244,3 +263,54 @@ void Lernapp::createDataEntry()
     ui->tableView2_1->hideColumn(0);
     ui->tableView2_1->show();
 }
+
+//cUrl Funktionen
+size_t Lernapp::WriteCallBack(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    std::ofstream* file = static_cast<std::ofstream*>(userp);
+    file->write(static_cast<char*>(contents), size * nmemb);
+    return size * nmemb;
+}
+
+size_t Lernapp::getDirFtp(void* contents, size_t size, size_t nmemb, void* userp) {
+    QStringList* fileList = static_cast<QStringList*>(userp);
+    QString data = QString::fromUtf8(static_cast<char*>(contents), size * nmemb);
+
+    // Jede Zeile enthält eine Datei
+    fileList->append(data.split("\n", Qt::SkipEmptyParts));
+
+    return size * nmemb;
+}
+
+QStringList Lernapp::getFTPFileList(const QString& ftpUrl, const QString& username, const QString& password) {
+    QStringList fileList;
+    CURL* curl;
+    CURLcode res;
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, ftpUrl.toStdString().c_str());
+
+        // Falls Login notwendig ist
+        QString userPwd = username + ":" + password;
+        curl_easy_setopt(curl, CURLOPT_USERPWD, userPwd.toStdString().c_str());
+
+        // FTP Listing abrufen
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Lernapp::getDirFtp);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fileList);
+
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl Fehler: %s\n", curl_easy_strerror(res));
+        }
+
+        curl_easy_cleanup(curl);
+    }
+    curl_global_cleanup();
+
+    return fileList;
+}
+
+
+

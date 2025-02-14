@@ -1,0 +1,7 @@
+/home/roman/dev_code/LernApp/testing/testServer/build/gcc12_homePC-Debug/CMakeFiles/testServer.dir
+/home/roman/dev_code/LernApp/testing/testServer/build/gcc12_homePC-Debug/CMakeFiles/edit_cache.dir
+/home/roman/dev_code/LernApp/testing/testServer/build/gcc12_homePC-Debug/CMakeFiles/rebuild_cache.dir
+/home/roman/dev_code/LernApp/testing/testServer/build/gcc12_homePC-Debug/CMakeFiles/list_install_components.dir
+/home/roman/dev_code/LernApp/testing/testServer/build/gcc12_homePC-Debug/CMakeFiles/install.dir
+/home/roman/dev_code/LernApp/testing/testServer/build/gcc12_homePC-Debug/CMakeFiles/install/local.dir
+/home/roman/dev_code/LernApp/testing/testServer/build/gcc12_homePC-Debug/CMakeFiles/install/strip.dir

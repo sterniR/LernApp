@@ -10,10 +10,9 @@
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
 #include <QDir>
+#include <curl/curl.h>
+#include <qboxlayout.h>
 
-#include <fstream>
-#include <QApplication>
-#include <QUrl>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,7 +31,10 @@ public:
     QSqlDatabase database;
     QString frageText, frageTextKontrolle, erstelltVonText, istWahrText;
 
-    size_t WriteCallBack(void* contents, size_t size, size_t nmemb, void* userp);
+    static size_t WriteCallBack(void* contents, size_t size, size_t nmemb, void* userp);
+    static size_t getDirFtp(void* contents, size_t size, size_t nmemb, void* userp);
+    static QStringList getFTPFileList(const QString& ftpUrl, const QString& username, const QString& password);
+
 private slots:
 
     //Server Anfragen
@@ -66,10 +68,12 @@ private slots:
 
     void on_button4_4_clicked();
 
+    void on_button4_5_clicked();
     // Debugging
     void on_actionNext_triggered();
 
     void on_actionBack_triggered();
+
 
 private:
     Ui::Lernapp *ui;

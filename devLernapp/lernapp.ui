@@ -80,7 +80,7 @@
               <item>
                <widget class="QPushButton" name="button1_3">
                 <property name="text">
-                 <string>Lerninhalte hochladen</string>
+                 <string>Server-Daten</string>
                 </property>
                </widget>
               </item>
@@ -707,6 +707,13 @@
            </spacer>
           </item>
           <item>
+           <widget class="QPushButton" name="button4_5">
+            <property name="text">
+             <string>Liste aktualisieren</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="button4_4">
             <property name="text">
              <string>Mit dem Server verbinden</string>
@@ -716,7 +723,13 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
-             <widget class="QListWidget" name="listWidget4_1"/>
+             <widget class="QTreeWidget" name="treeWidget">
+              <column>
+               <property name="text">
+                <string notr="true">1</string>
+               </property>
+              </column>
+             </widget>
             </item>
            </layout>
           </item>
