@@ -1,7 +1,5 @@
 #include "lernapp.h"
-#include <qapplication.h>
-
-
+#include <QApplication>
 
 int main(int argc, char *argv[])
 {

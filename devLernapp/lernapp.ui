@@ -716,9 +716,29 @@
           <item>
            <widget class="QPushButton" name="button4_4">
             <property name="text">
-             <string>Mit dem Server verbinden</string>
+             <string>Datei Herunterladen</string>
             </property>
            </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="button4_6">
+            <property name="text">
+             <string>Datei Hochladen</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_10">
+            <property name="orientation">
+             <enum>Qt::Orientation::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -763,6 +783,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="button4_1">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Lokal speichern</string>
               </property>
@@ -777,6 +800,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="button4_3">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Hochladen</string>
               </property>
