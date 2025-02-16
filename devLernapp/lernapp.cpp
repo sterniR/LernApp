@@ -13,17 +13,18 @@ Lernapp::Lernapp(QWidget *parent)
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
+    connect(ui->treeView4_1, &QTreeView::clicked, this, &Lernapp::treeItemClicked);
 
     // Datenbank ertellen
+    setupDatabaseDir();
     database = QSqlDatabase::addDatabase("QSQLITE");
-    database.setDatabaseName("Datenbank.sqlite3");
+    database.setDatabaseName(projektOrdner + "/datenbank.sqlite3");
 
     if(!database.open())
     {
         error_database(database);
     }
 
-    setupDatabase();
 
     QSqlQuery query(database);
     query.prepare("CREATE TABLE IF NOT EXISTS Fragen ("
@@ -49,20 +50,6 @@ Lernapp::~Lernapp()
     delete ui;
 }
 
-void Lernapp::setupDatabase() {
-
-    projektOrdner += "/Datenbank.sqlite3";
-
-    QDir dir;
-    if (!dir.exists(projektOrdner)) {
-        if (!dir.mkpath(projektOrdner)) {
-            qWarning() << "Fehler beim Erstellen des Ordners:" << projektOrdner;
-            QMessageBox::warning(nullptr, "Fehler beim Ertellen des Datenbankverzeichnis", tr("Datenbankordner: %1").arg(projektOrdner));
-            return;
-        }
-    }
-}
-
 //Seite 0
 
 void Lernapp::on_button1_1_clicked()
@@ -77,10 +64,13 @@ void Lernapp::on_button1_2_clicked()
 }
 void Lernapp::on_button1_3_clicked() // Datenbank öffnen
 {
+    listDataTree();
+
     ui->stackedWidget->setCurrentIndex(3);
 
     ui->treeWidget->setColumnCount(1);
     ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
+
 }
 
 //Seite 1
@@ -244,7 +234,32 @@ void Lernapp::on_button4_5_clicked() { // Inhalt vom Server auflisten
 
 void Lernapp::on_button4_6_clicked() // Upload
 {
+    CURL *curl;
+    CURLcode res;
+    FILE *file;
+    QString uploadData = QCoreApplication::applicationDirPath() + "/datenbank/";
 
+    file = fopen(uploadData.toUtf8().constData(), "rb");
+    if (!file) {
+        QMessageBox::warning(nullptr, tr("Datei nicht gefunden"), tr("%1").arg(uploadData));
+    }
+
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+    if(curl)
+    {
+        QString url = uploadData + selectedItem;
+        QMessageBox::warning(nullptr, tr("Datei nicht gefunden"), tr("%1").arg(url));
+
+        curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+        curl_easy_setopt();
+        curl_easy_setopt();
+        curl_easy_setopt();
+        curl_easy_setopt();
+        curl_easy_setopt();
+        curl_easy_setopt();
+    }
 }
 
 // Debugging
@@ -288,9 +303,15 @@ void Lernapp::createDataEntry()
     model->setHeaderData(3, Qt::Horizontal, tr("Erstellt von"));
     model->setHeaderData(4, Qt::Horizontal, tr("Erstellt am"));
 
-    ui->tableView2_1->setModel(model);
+    ui->tableView2_1->setModel(model); //Erstellen
     ui->tableView2_1->hideColumn(0);
     ui->tableView2_1->show();
+    ui->tableView3_1->setModel(model); // Uebersicht
+    ui->tableView3_1->hideColumn(0);
+    ui->tableView3_1->show();
+    // ui->tableView4_1->setModel(model); // Server-Daten
+    // ui->tableView4_1->hideColumn(0);
+    // ui->tableView4_1->show();
 }
 
 QStringList Lernapp::parseFTPList(const QString &response) {
@@ -307,6 +328,34 @@ QStringList Lernapp::parseFTPList(const QString &response) {
         }
     }
     return fileList;
+}
+
+void Lernapp::setupDatabaseDir() {
+
+    projektOrdner += "/datenbank";
+
+    QDir dir;
+    if (!dir.exists(projektOrdner)) {
+        if (!dir.mkpath(projektOrdner)) {
+            qWarning() << "Fehler beim Erstellen des Ordners:" << projektOrdner;
+            QMessageBox::warning(nullptr, "Fehler beim Ertellen des Datenbankverzeichnis", tr("Datenbankordner: %1").arg(projektOrdner));
+            return;
+        }
+    }
+}
+
+void Lernapp::listDataTree()
+{
+    QFileSystemModel *model = new QFileSystemModel;
+    model->setRootPath(projektOrdner);
+
+    ui->treeView4_1->setModel(model);
+    ui->treeView4_1->setRootIndex(model->index(projektOrdner));
+}
+
+void Lernapp::treeItemClicked(const QModelIndex &index)
+{
+    selectedItem = index.data(Qt::DisplayRole).toString();
 }
 
 //cUrl Funktionen

@@ -14,6 +14,7 @@
 #include <qboxlayout.h>
 #include <QRegularExpression>
 #include <QCoreApplication>
+#include <QFileSystemModel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,15 +31,15 @@ public:
     ~Lernapp();
 
     QSqlDatabase database;
-    QString frageText, frageTextKontrolle, erstelltVonText, istWahrText;
-    QString projektOrdner = QCoreApplication::applicationDirPath() + "/datenbank";
+    QString frageText, frageTextKontrolle, erstelltVonText, istWahrText, selectedItem;
+    QString projektOrdner = QCoreApplication::applicationDirPath();
 
+    //Server cURL
     static size_t WriteCallBack(void* contents, size_t size, size_t nmemb, void* userp);
     static size_t getDirFtp(void* contents, size_t size, size_t nmemb, void* userp);
     static QStringList getFTPFileList(const QString& ftpUrl, const QString& username, const QString& password);
     static QStringList parseFTPList(const QString &response);
 
-    void setupDatabase();
 private slots:
 
     //Database
@@ -47,6 +48,9 @@ private slots:
 
     //Funktionen
     void createDataEntry();
+    void setupDatabaseDir();
+    void listDataTree();
+    void treeItemClicked(const QModelIndex &index);
 
     //GUI
     void on_button1_1_clicked();
