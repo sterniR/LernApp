@@ -237,29 +237,49 @@ void Lernapp::on_button4_6_clicked() // Upload
     CURL *curl;
     CURLcode res;
     FILE *file;
-    QString uploadData = QCoreApplication::applicationDirPath() + "/datenbank/";
+
+    QString ftpURL = "ftp://138.199.195.70:21/files/";
+    QString uploadData = QCoreApplication::applicationDirPath() + "/datenbank/" + selectedItem;
+    QString fileName = QFileInfo(uploadData).fileName();
+    QString fullFtpURL = ftpURL + fileName;
+
+    qDebug() << "Lokale Datei: " << uploadData;
+    qDebug() << "FTP-Upload-Ziel: " << fullFtpURL;
 
     file = fopen(uploadData.toUtf8().constData(), "rb");
     if (!file) {
-        QMessageBox::warning(nullptr, tr("Datei nicht gefunden"), tr("%1").arg(uploadData));
+        QMessageBox::warning(nullptr, tr("Fehler"), tr("Datei konnte nicht geöffnet werden: %1").arg(uploadData));
+        return;
     }
-
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
-    if(curl)
-    {
-        QString url = uploadData + selectedItem;
-        QMessageBox::warning(nullptr, tr("Datei nicht gefunden"), tr("%1").arg(url));
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);  // Hochladen aktivieren
+        curl_easy_setopt(curl, CURLOPT_URL, fullFtpURL.toUtf8().constData());  // FTP-Ziel-URL mit Dateiname
+        curl_easy_setopt(curl, CURLOPT_USERPWD, "bob:Kartoffel123?!"); // FTP-Login
+        curl_easy_setopt(curl, CURLOPT_READDATA, file);  // Datei als Datenquelle setzen
+        curl_easy_setopt(curl, CURLOPT_FTP_CREATE_MISSING_DIRS, CURLFTP_CREATE_DIR); // Fehlende Ordner erstellen
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L); // Debug-Ausgabe aktivieren
 
-        curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-        curl_easy_setopt();
-        curl_easy_setopt();
-        curl_easy_setopt();
-        curl_easy_setopt();
-        curl_easy_setopt();
-        curl_easy_setopt();
+        // Upload starten
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            qWarning() << "Fehler beim Hochladen:" << curl_easy_strerror(res);
+            QMessageBox::warning(nullptr, tr("Fehler"), tr("Upload fehlgeschlagen: %1").arg(curl_easy_strerror(res)));
+        } else {
+            QMessageBox::information(nullptr, tr("Erfolg"), tr("Datei erfolgreich hochgeladen."));
+        }
+
+        // Aufräumen
+        fclose(file);
+        curl_easy_cleanup(curl);
+    } else {
+        qWarning() << "Fehler: cURL konnte nicht initialisiert werden.";
+        fclose(file);
     }
+
+    curl_global_cleanup();
 }
 
 // Debugging
@@ -290,7 +310,7 @@ void Lernapp::error_query(QSqlError error)
 }
 
 //Funktionen
-void Lernapp::createDataEntry()
+void Lernapp::createDataEntry() //TableView mit Inhalt befüllen
 {
     frageTextKontrolle = ui->textEdit2_1->toPlainText();
 
@@ -314,7 +334,7 @@ void Lernapp::createDataEntry()
     // ui->tableView4_1->show();
 }
 
-QStringList Lernapp::parseFTPList(const QString &response) {
+QStringList Lernapp::parseFTPList(const QString &response) { //Output-Datei filtern
     QStringList fileList;
 
     // Regulärer Ausdruck für Dateinamen
@@ -370,8 +390,6 @@ size_t Lernapp::getDirFtp(void* contents, size_t size, size_t nmemb, void* userp
     QStringList* fileList = static_cast<QStringList*>(userp);
     QString data = QString::fromUtf8(static_cast<char*>(contents), size * nmemb);
 
-    // Jede Zeile enthält eine Datei
-    // fileList->append(data.split("\n", Qt::SkipEmptyParts));
     *fileList = parseFTPList(data);
 
     return size * nmemb;
