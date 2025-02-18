@@ -9,13 +9,45 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# set(OPENSSL_ROOT_DIR "${CMAKE_BINARY_DIR}/_deps/openssl-build")
+# set(OPENSSL_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/openssl-src/include")
+# set(OPENSSL_CRYPTO_LIBRARY "${CMAKE_BINARY_DIR}/_deps/openssl-build/lib/libcrypto.a")
+# set(OPENSSL_SSL_LIBRARY "${CMAKE_BINARY_DIR}/_deps/openssl-build/lib/libssl.a")
+
+include(cmake/CPM.cmake)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Sql)
 find_package(Qt6 REQUIRED COMPONENTS Network)
-include(cmake/CPM.cmake)
+# find_package(OpenSSL REQUIRED)
 
 # CPMAddPackage("https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/mbedtls-3.6.2.zip")
+
+CPMAddPackage(
+    NAME openssl
+    GITHUB_REPOSITORY "openssl/openssl"
+    GIT_TAG "openssl-3.4.1"
+    DOWNLOAD_ONLY YES
+)
+
+if(openssl_ADDED)
+    set(OPENSSL_SRC_DIR "${openssl_SOURCE_DIR}")
+
+    execute_process(
+        COMMAND ./config no-shared --prefix=${CMAKE_BINARY_DIR}/_deps/openssl-build
+        WORKING_DIRECTORY ${OPENSSL_SRC_DIR}
+    )
+
+    execute_process(
+        COMMAND make -j$(nproc)
+        WORKING_DIRECTORY ${OPENSSL_SRC_DIR}
+    )
+
+    execute_process(
+        COMMAND make install
+        WORKING_DIRECTORY ${OPENSSL_SRC_DIR}
+    )
+endif()
 
 CPMAddPackage(
     NAME mbedtls
@@ -28,8 +60,6 @@ CPMAddPackage(
     GITHUB_REPOSITORY "curl/curl"
     GIT_TAG "curl-8_12_0"
 )
-
-
 
 set(PROJECT_SOURCES
         main.cpp
@@ -66,9 +96,8 @@ target_link_libraries(devLernapp PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(devLernapp PRIVATE Qt${QT_VERSION_MAJOR}::Sql)
 target_link_libraries(devLernapp PRIVATE Qt6::Network)
 target_link_libraries(devLernapp PRIVATE libcurl)
-# target_link_libraries(devLernapp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/curl_install/lib/libcurl.a)
-# target_link_libraries(devLernapp PRIVATE curl)
-
+target_include_directories(devLernapp PRIVATE ${OPENSSL_INCLUDE_DIR})
+target_link_libraries(devLernapp PRIVATE ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

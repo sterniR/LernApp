@@ -390,7 +390,7 @@ size_t Lernapp::getDirFtp(void* contents, size_t size, size_t nmemb, void* userp
     QStringList* fileList = static_cast<QStringList*>(userp);
     QString data = QString::fromUtf8(static_cast<char*>(contents), size * nmemb);
 
-    *fileList = parseFTPList(data);
+    fileList->append(parseFTPList(data));
 
     return size * nmemb;
 }
@@ -405,7 +405,6 @@ QStringList Lernapp::getFTPFileList(const QString& ftpUrl, const QString& userna
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, ftpUrl.toStdString().c_str());
 
-        // Falls Login notwendig ist
         QString userPwd = username + ":" + password;
         curl_easy_setopt(curl, CURLOPT_USERPWD, userPwd.toStdString().c_str());
 

@@ -34,6 +34,7 @@ public:
     QString frageText, frageTextKontrolle, erstelltVonText, istWahrText, selectedItem;
     QString projektOrdner = QCoreApplication::applicationDirPath();
 
+
     //Server cURL
     static size_t WriteCallBack(void* contents, size_t size, size_t nmemb, void* userp);
     static size_t getDirFtp(void* contents, size_t size, size_t nmemb, void* userp);
