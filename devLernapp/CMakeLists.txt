@@ -9,13 +9,27 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-DCURL_STATICLIB)
-
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Sql)
 find_package(Qt6 REQUIRED COMPONENTS Network)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/curl_install/include)
+include(cmake/CPM.cmake)
+
+# CPMAddPackage("https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/mbedtls-3.6.2.zip")
+
+CPMAddPackage(
+    NAME mbedtls
+    GITHUB_REPOSITORY "Mbed-TLS/mbedtls"
+    GIT_TAG "v3.6.2"
+)
+
+CPMAddPackage(
+    NAME curl
+    GITHUB_REPOSITORY "curl/curl"
+    GIT_TAG "curl-8_12_0"
+)
+
+
 
 set(PROJECT_SOURCES
         main.cpp
@@ -51,8 +65,8 @@ endif()
 target_link_libraries(devLernapp PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(devLernapp PRIVATE Qt${QT_VERSION_MAJOR}::Sql)
 target_link_libraries(devLernapp PRIVATE Qt6::Network)
-target_link_libraries(devLernapp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/curl_install/lib/libcurl.a
-)
+target_link_libraries(devLernapp PRIVATE libcurl)
+# target_link_libraries(devLernapp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/curl_install/lib/libcurl.a)
 # target_link_libraries(devLernapp PRIVATE curl)
 
 
