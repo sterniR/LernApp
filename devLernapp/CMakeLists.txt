@@ -9,56 +9,53 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# set(OPENSSL_ROOT_DIR "${CMAKE_BINARY_DIR}/_deps/openssl-build")
-# set(OPENSSL_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/openssl-src/include")
-# set(OPENSSL_CRYPTO_LIBRARY "${CMAKE_BINARY_DIR}/_deps/openssl-build/lib/libcrypto.a")
-# set(OPENSSL_SSL_LIBRARY "${CMAKE_BINARY_DIR}/_deps/openssl-build/lib/libssl.a")
+set(CPM_DOWNLOAD_VERSION 0.27.2)
+set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
 
-include(cmake/CPM.cmake)
+if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+    message(STATUS "Downloading CPM.cmake")
+    file(DOWNLOAD https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake ${CPM_DOWNLOAD_LOCATION})
+endif()
+
+include(${CPM_DOWNLOAD_LOCATION})
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
-find_package(Qt6 REQUIRED COMPONENTS Sql)
-find_package(Qt6 REQUIRED COMPONENTS Network)
-# find_package(OpenSSL REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Sql Network)
 
-# CPMAddPackage("https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/mbedtls-3.6.2.zip")
-
-CPMAddPackage(
-    NAME openssl
-    GITHUB_REPOSITORY "openssl/openssl"
-    GIT_TAG "openssl-3.4.1"
-    DOWNLOAD_ONLY YES
-)
-
-if(openssl_ADDED)
-    set(OPENSSL_SRC_DIR "${openssl_SOURCE_DIR}")
-
-    execute_process(
-        COMMAND ./config no-shared --prefix=${CMAKE_BINARY_DIR}/_deps/openssl-build
-        WORKING_DIRECTORY ${OPENSSL_SRC_DIR}
-    )
-
-    execute_process(
-        COMMAND make -j$(nproc)
-        WORKING_DIRECTORY ${OPENSSL_SRC_DIR}
-    )
-
-    execute_process(
-        COMMAND make install
-        WORKING_DIRECTORY ${OPENSSL_SRC_DIR}
-    )
-endif()
+# CPMAddPackage(
+#     NAME libpsl
+#     GIT_REPOSITORY "https://github.com/rockdaboot/libpsl.git"
+#     GIT_TAG "0.21.5"
+#     # CONFIGURE_COMMAND ./autogen.sh && ./configure --disable-shared --prefix=${CMAKE_BINARY_DIR}/_deps/libpsl-install
+#     # BUILD_COMMAND make -j$(nproc)
+#     # INSTALL_COMMAND make install
+# )
 
 CPMAddPackage(
     NAME mbedtls
     GITHUB_REPOSITORY "Mbed-TLS/mbedtls"
     GIT_TAG "v3.6.2"
+    OPTIONS
+        "ENABLE_PROGRAMS OFF"
+        "ENABLE_TESTING OFF"
 )
+
+set(MBEDTLS_INCLUDE_DIRS ${mbedtls_SOURCE_DIR}/include)
+set(MBEDTLS_LIBRARY ${mbedtls_BINARY_DIR}/library/libmbedtls.a)
+set(MBEDX509_LIBRARY ${mbedtls_BINARY_DIR}/library/libmbedx509.a)
+set(MBEDCRYPTO_LIBRARY ${mbedtls_BINARY_DIR}/library/libmbedcrypto.a)
 
 CPMAddPackage(
     NAME curl
     GITHUB_REPOSITORY "curl/curl"
-    GIT_TAG "curl-8_12_0"
+    GIT_TAG "curl-7_82_0"
+    OPTIONS
+        "CMAKE_USE_LIBSSH2 OFF"
+        "CURL_USE_MBEDTLS ON"
+        "BUILD_CURL_EXE OFF"
+        "BUILD_SHARED_LIBS OFF"
+        "BUILD_TESTING OFF"
 )
 
 set(PROJECT_SOURCES
@@ -72,7 +69,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(devLernapp
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET devLernapp APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -92,12 +88,17 @@ else()
     endif()
 endif()
 
-target_link_libraries(devLernapp PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(devLernapp PRIVATE Qt${QT_VERSION_MAJOR}::Sql)
-target_link_libraries(devLernapp PRIVATE Qt6::Network)
-target_link_libraries(devLernapp PRIVATE libcurl)
-target_include_directories(devLernapp PRIVATE ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(devLernapp PRIVATE ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
+include_directories(${MBEDTLS_INCLUDE_DIRS})
+link_directories(${mbedtls_BINARY_DIR}/library)
+
+target_link_libraries(devLernapp PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Sql
+    Qt6::Network
+    libcurl
+)
+
+
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
