@@ -14,6 +14,7 @@ Lernapp::Lernapp(QWidget *parent)
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
     connect(ui->treeView4_1, &QTreeView::clicked, this, &Lernapp::treeItemClicked);
+    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &Lernapp::deleteDataEntryServer);
 
     // Datenbank ertellen
     setupDatabaseDir();
@@ -239,7 +240,7 @@ void Lernapp::on_button4_6_clicked() // Upload
     FILE *file;
 
     QString ftpURL = "ftp://138.199.195.70:21/files/";
-    QString uploadData = QCoreApplication::applicationDirPath() + "/datenbank/" + selectedItem;
+    QString uploadData = QCoreApplication::applicationDirPath() + "/datenbank/" + selectedItemLocal;
     QString fileName = QFileInfo(uploadData).fileName();
     QString fullFtpURL = ftpURL + fileName;
 
@@ -280,6 +281,69 @@ void Lernapp::on_button4_6_clicked() // Upload
     }
 
     curl_global_cleanup();
+}
+
+void Lernapp::on_button4_7_clicked()
+{
+    if(selectedItemServer != "") {
+        msgBox.setText("Die Datei wird gelöscht!");
+        msgBox.setInformativeText(tr("Sind sie sicher, dass sie die Datei %1 löschen wollen?").arg(selectedItemServer));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        int ret = msgBox.exec();
+        switch(ret) {
+        case QMessageBox::No:
+        {
+            qDebug() << "No";
+            break;
+        }
+        case QMessageBox::Yes:
+        {
+            qDebug() << "Yes";
+            CURL* curl;
+            CURLcode res;
+
+            struct curl_slist* cmdlist = NULL;
+            QString fileDeleteString = "DELE /files/" + selectedItemServer;
+            const char* fileDeleteChar = fileDeleteString.toUtf8().constData();
+            cmdlist = curl_slist_append(cmdlist, fileDeleteChar);
+
+            curl_global_init(CURL_GLOBAL_DEFAULT);
+            curl = curl_easy_init();
+            if(curl) {
+                curl_easy_setopt(curl, CURLOPT_URL, ftpServerURL.toUtf8().constData());
+                qDebug() << "URL: " << ftpServerURL;
+                curl_easy_setopt(curl, CURLOPT_USERPWD, "bob:Kartoffel123?!");
+                curl_easy_setopt(curl, CURLOPT_QUOTE, cmdlist);
+                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+                res = curl_easy_perform(curl);
+                if(res != CURLE_OK) {
+                    qDebug() << "Fehler: " << curl_easy_strerror(res);
+                    QMessageBox::warning(nullptr, tr("Fehler beim löschen."), tr("%1").arg(curl_easy_strerror(res)));
+                } else {
+                    QMessageBox::warning(nullptr, tr("Datei erfolgreich gelöscht"), tr("%1 wurde gelöscht").arg(selectedItemServer));
+                }
+                curl_easy_cleanup(curl);
+            }
+            curl_slist_free_all(cmdlist);
+            break;
+        }
+        default:
+        {
+            qDebug() << "Default case. What happened?";
+        }
+        }
+
+    } else {
+        QMessageBox::warning(nullptr, tr("Keine Datei ausgewählt."), tr("Bitte aktualisieren Sie die Liste und klicken Sie eine Datei aus."));
+    }
+}
+
+void Lernapp::deleteDataEntryServer(QTreeWidgetItem *item, int index)
+{
+    selectedItemServer = item->text(index);
+    qDebug() << selectedItemServer;
 }
 
 // Debugging
@@ -375,7 +439,7 @@ void Lernapp::listDataTree()
 
 void Lernapp::treeItemClicked(const QModelIndex &index)
 {
-    selectedItem = index.data(Qt::DisplayRole).toString();
+    selectedItemLocal = index.data(Qt::DisplayRole).toString();
 }
 
 //cUrl Funktionen
@@ -424,3 +488,6 @@ QStringList Lernapp::getFTPFileList(const QString& ftpUrl, const QString& userna
 
     return fileList;
 }
+
+
+

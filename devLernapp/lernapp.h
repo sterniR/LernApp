@@ -15,6 +15,7 @@
 #include <QRegularExpression>
 #include <QCoreApplication>
 #include <QFileSystemModel>
+#include <QTreeWidgetItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,9 +32,10 @@ public:
     ~Lernapp();
 
     QSqlDatabase database;
-    QString frageText, frageTextKontrolle, erstelltVonText, istWahrText, selectedItem;
+    QString frageText, frageTextKontrolle, erstelltVonText, istWahrText, selectedItemLocal, selectedItemServer;
+    QString ftpServerURL = "ftp://138.199.195.70:21/files/";
     QString projektOrdner = QCoreApplication::applicationDirPath();
-
+    QMessageBox msgBox;
 
     //Server cURL
     static size_t WriteCallBack(void* contents, size_t size, size_t nmemb, void* userp);
@@ -48,6 +50,7 @@ private slots:
     void error_query(QSqlError);
 
     //Funktionen
+    void deleteDataEntryServer(QTreeWidgetItem* item, int index);
     void createDataEntry();
     void setupDatabaseDir();
     void listDataTree();
@@ -82,6 +85,8 @@ private slots:
 
 
     void on_button4_6_clicked();
+
+    void on_button4_7_clicked();
 
 private:
     Ui::Lernapp *ui;
