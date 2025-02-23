@@ -13,30 +13,33 @@ Lernapp::Lernapp(QWidget *parent)
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(0);
-    connect(ui->treeView4_1, &QTreeView::clicked, this, &Lernapp::treeItemClicked);
+    connect(ui->treeView4_1, &QTreeView::clicked, this, &::Lernapp::treeView4ItemClicked);
+    connect(ui->treeView5_1, &QTreeView::clicked, this, &::Lernapp::treeView5ItemClicked);
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &Lernapp::deleteDataEntryServer);
+    // ui->tabWidget->hide();
 
-    // Datenbank ertellen
+    setupDir();
     setupDatabaseDir();
     database = QSqlDatabase::addDatabase("QSQLITE");
-    database.setDatabaseName(projektOrdner + "/datenbank.sqlite3");
+    // database = QSqlDatabase::addDatabase("QSQLITE");
+    // database.setDatabaseName(pathSystem + "/data_Lernapp/datenbank_Lernapp/leereDatenbank.sqlite3");
 
-    if(!database.open())
-    {
-        error_database(database);
-    }
+    // if(!database.open())
+    // {
+    //     error_database(database);
+    // }
 
 
-    QSqlQuery query(database);
-    query.prepare("CREATE TABLE IF NOT EXISTS Fragen ("
-                  "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                  "frage_text TEXT UNIQUE NOT NULL,"
-                  "ist_wahr BOOLEAN NOT NULL DEFAULT 0,"
-                  "erstellt_von TEXT,"
-                  "erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-                  ");");
-    if(!query.exec())
-        error_query(query.lastError());
+    // QSqlQuery query(database);
+    // query.prepare("CREATE TABLE IF NOT EXISTS Fragen ("
+    //               "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+    //               "frage_text TEXT UNIQUE NOT NULL,"
+    //               "ist_wahr BOOLEAN NOT NULL DEFAULT 0,"
+    //               "erstellt_von TEXT,"
+    //               "erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+    //               ");");
+    // if(!query.exec())
+    //     error_query(query.lastError());
 
     // query.prepare("INSERT OR IGNORE INTO Fragen ("
     //               "frage_text, ist_wahr, erstellt_von)"
@@ -51,21 +54,21 @@ Lernapp::~Lernapp()
     delete ui;
 }
 
-//Seite 0
+//Seite 1
 
 void Lernapp::on_button1_1_clicked()
 {
-    createDataEntry();
+    listDatabaseTableView(ui->tableView2_1);
     ui->stackedWidget->setCurrentIndex(1);
 }
 void Lernapp::on_button1_2_clicked()
 {
-    createDataEntry();
+    listDatabaseTableView(ui->tableView3_1);
     ui->stackedWidget->setCurrentIndex(2);
 }
 void Lernapp::on_button1_3_clicked() // Datenbank öffnen
 {
-    listDataTree();
+    listDataTreeRoot();
 
     ui->stackedWidget->setCurrentIndex(3);
 
@@ -73,13 +76,18 @@ void Lernapp::on_button1_3_clicked() // Datenbank öffnen
     ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
 
 }
-
-//Seite 1
-
-void Lernapp::on_button2_1_clicked() // Liste öffnen
+void Lernapp::on_button1_4_clicked()
 {
-    createDataEntry();
-    ui->stackedWidget->setCurrentIndex(2);
+    ui->stackedWidget->setCurrentIndex(4);
+}
+
+//Seite 2
+
+void Lernapp::on_button2_1_clicked() // Lokale Datenbank öffnen
+{
+    listDatabaseTreeView(ui->treeView5_1);
+    ui->stackedWidget->setCurrentIndex(4);
+    lastIndex = 1;
 }
 void Lernapp::on_button2_2_clicked() //Startseite
 {
@@ -134,22 +142,34 @@ void Lernapp::on_button2_3_clicked() // Frage speichern
                       "');");
         if(!query.exec())
             error_query(query.lastError());
-        createDataEntry();
+        listDatabaseTableView(ui->tableView2_1);
     }
 }
 
-//Seite 2
+void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
+{
+
+}
+
+void Lernapp::on_button2_5_clicked() //Neue Datenbank erstellen
+{
+    QString newDatabase = ui->lineEdit2_2->text();
+    selectDatabase(newDatabase);
+    ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(newDatabase));
+}
+
+//Seite 3
 
 void Lernapp::on_button3_1_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidget->setCurrentIndex(4);
 }
 void Lernapp::on_button3_2_clicked()
 {
     ui->stackedWidget->setCurrentIndex(0);
 }
 
-//Seite 3
+//Seite 4
 
 void Lernapp::on_button4_2_clicked()
 {
@@ -168,14 +188,12 @@ void Lernapp::on_button4_4_clicked() //Download
         QString itemText = selectedFile->text(ui->treeWidget->currentColumn());
 
         ftpUrl += itemText;
-        // Projektverzeichnis ermitteln
-        QString projectDir = QCoreApplication::applicationDirPath();
 
         // Download-Ordner setzen
-        QString downloadDir = projectDir + "/download";
+        QString downloadDir = pathSystem + "/data_Lernapp/datenbank_Lernapp";
 
         // Sicherstellen, dass der "download"-Ordner existiert
-        QDir().mkpath(downloadDir);
+        // QDir().mkpath(downloadDir);
 
         // Dateinamen aus der URL extrahieren
         QString fileName = QUrl(ftpUrl).fileName();
@@ -195,6 +213,7 @@ void Lernapp::on_button4_4_clicked() //Download
                 curl_easy_setopt(curl, CURLOPT_USERPWD, "bob:Kartoffel123?!");
                 curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Lernapp::WriteCallBack);
                 curl_easy_setopt(curl, CURLOPT_WRITEDATA, &file);
+                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
                 res = curl_easy_perform(curl);
                 curl_easy_cleanup(curl);
@@ -240,7 +259,7 @@ void Lernapp::on_button4_6_clicked() // Upload
     FILE *file;
 
     QString ftpURL = "ftp://138.199.195.70:21/files/";
-    QString uploadData = QCoreApplication::applicationDirPath() + "/datenbank/" + selectedItemLocal;
+    QString uploadData = pathSystem + "/data_Lernapp/datenbank_Lernapp/" + selectedItemLocal;
     QString fileName = QFileInfo(uploadData).fileName();
     QString fullFtpURL = ftpURL + fileName;
 
@@ -340,11 +359,45 @@ void Lernapp::on_button4_7_clicked()
     }
 }
 
-void Lernapp::deleteDataEntryServer(QTreeWidgetItem *item, int index)
+
+//Seite 5
+
+void Lernapp::on_button5_1_clicked()
 {
-    selectedItemServer = item->text(index);
-    qDebug() << selectedItemServer;
+    ui->stackedWidget->setCurrentIndex(lastIndex);
 }
+
+
+void Lernapp::on_button5_2_clicked()
+{
+    QString buffer = activeDatabase;
+    if(activeDatabase != "") {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Datenbank auswählen", tr("Möchten Sie die Datenbank: %1\nals aktive Datenbank auswählen?").arg(activeDatabase), QMessageBox::Yes | QMessageBox::No);
+        if(reply == QMessageBox::Yes) {
+            ui->label2_1->setText(tr("Aktive Datenbank : %1").arg(activeDatabase));
+            selectDatabase(activeDatabase);
+            ui->stackedWidget->setCurrentIndex(lastIndex);
+        } else {
+            activeDatabase = buffer;
+        }
+    } else {
+        QMessageBox::warning(this, "Fehler", "Keine Datenbank ausgewählt.\nKlicken Sie eine Datenbank aus, bevor Sie auf auswählen klicken!");
+    }
+}
+
+//Seite 6
+
+
+
+//Seite 7
+
+
+
+//Seite 8
+
+
+
 
 // Debugging
 
@@ -374,7 +427,7 @@ void Lernapp::error_query(QSqlError error)
 }
 
 //Funktionen
-void Lernapp::createDataEntry() //TableView mit Inhalt befüllen
+void Lernapp::listDatabaseTableView(QTableView* tableView) //TableView mit Inhalt befüllen
 {
     frageTextKontrolle = ui->textEdit2_1->toPlainText();
 
@@ -387,15 +440,9 @@ void Lernapp::createDataEntry() //TableView mit Inhalt befüllen
     model->setHeaderData(3, Qt::Horizontal, tr("Erstellt von"));
     model->setHeaderData(4, Qt::Horizontal, tr("Erstellt am"));
 
-    ui->tableView2_1->setModel(model); //Erstellen
-    ui->tableView2_1->hideColumn(0);
-    ui->tableView2_1->show();
-    ui->tableView3_1->setModel(model); // Uebersicht
-    ui->tableView3_1->hideColumn(0);
-    ui->tableView3_1->show();
-    // ui->tableView4_1->setModel(model); // Server-Daten
-    // ui->tableView4_1->hideColumn(0);
-    // ui->tableView4_1->show();
+    tableView->setModel(model); //Erstellen
+    tableView->hideColumn(0);
+    tableView->show();
 }
 
 QStringList Lernapp::parseFTPList(const QString &response) { //Output-Datei filtern
@@ -414,32 +461,121 @@ QStringList Lernapp::parseFTPList(const QString &response) { //Output-Datei filt
     return fileList;
 }
 
-void Lernapp::setupDatabaseDir() {
+void Lernapp::setupDir() {
 
-    projektOrdner += "/datenbank";
+    QString pathDatenbank;
+
+    qDebug() << pathSystem << "" << pathDatenbank;
+    pathDatenbank = pathSystem + "/data_Lernapp";
+    qDebug() << pathSystem << "" << pathDatenbank;
 
     QDir dir;
-    if (!dir.exists(projektOrdner)) {
-        if (!dir.mkpath(projektOrdner)) {
-            qWarning() << "Fehler beim Erstellen des Ordners:" << projektOrdner;
-            QMessageBox::warning(nullptr, "Fehler beim Ertellen des Datenbankverzeichnis", tr("Datenbankordner: %1").arg(projektOrdner));
+    if (!dir.exists(pathDatenbank)) {
+        if (!dir.mkpath(pathDatenbank)) {
+            qWarning() << "Fehler beim Erstellen des Ordners:" << pathDatenbank;
+            QMessageBox::warning(nullptr, "Fehler beim Ertellen des Hauptverzeichnises", tr("Pfad: %1").arg(pathDatenbank));
             return;
         }
     }
 }
 
-void Lernapp::listDataTree()
+void Lernapp::setupDatabaseDir()
 {
-    QFileSystemModel *model = new QFileSystemModel;
-    model->setRootPath(projektOrdner);
+    QString pathDatenbank;
 
-    ui->treeView4_1->setModel(model);
-    ui->treeView4_1->setRootIndex(model->index(projektOrdner));
+    qDebug() << pathSystem << "" << pathDatenbank;
+    pathDatenbank = pathSystem + "/data_Lernapp/datenbank_Lernapp";
+    qDebug() << pathSystem << "" << pathDatenbank;
+
+    QDir dir;
+    if (!dir.exists(pathDatenbank)) {
+        if (!dir.mkpath(pathDatenbank)) {
+            qWarning() << "Fehler beim Erstellen des Ordners:" << pathDatenbank;
+            QMessageBox::warning(nullptr, "Fehler beim Ertellen des Datenbankordners", tr("Pfad: %1").arg(pathDatenbank));
+            return;
+        }
+    }
 }
 
-void Lernapp::treeItemClicked(const QModelIndex &index)
+void Lernapp::setupDownloadDir()
+{
+    QString pathDatenbank;
+
+    qDebug() << pathSystem << "" << pathDatenbank;
+    pathDatenbank = pathSystem + "/data_Lernapp/download_Lernapp";
+    qDebug() << pathSystem << "" << pathDatenbank;
+
+    QDir dir;
+    if (!dir.exists(pathDatenbank)) {
+        if (!dir.mkpath(pathDatenbank)) {
+            qWarning() << "Fehler beim Erstellen des Ordners:" << pathDatenbank;
+            QMessageBox::warning(nullptr, "Fehler beim Ertellen des Downloadordners", tr("Pfad: %1").arg(pathDatenbank));
+            return;
+        }
+    }
+}
+
+void Lernapp::listDataTreeRoot()
+{
+    QFileSystemModel *model = new QFileSystemModel;
+    QString pathLocaleFiles = pathSystem + "/data_Lernapp";
+    model->setRootPath(pathLocaleFiles);
+
+    ui->treeView4_1->setModel(model);
+    ui->treeView4_1->setRootIndex(model->index(pathLocaleFiles));
+}
+
+void Lernapp::listDatabaseTreeView(QTreeView* view)
+{
+    QFileSystemModel *model = new QFileSystemModel;
+    QString pathLocaleFiles = pathSystem + "/data_Lernapp/datenbank_Lernapp";
+    model->setRootPath(pathLocaleFiles);
+
+    view->setModel(model);
+    view->setRootIndex(model->index(pathLocaleFiles));
+}
+
+void Lernapp::treeView4ItemClicked(const QModelIndex &index)
 {
     selectedItemLocal = index.data(Qt::DisplayRole).toString();
+}
+
+void Lernapp::treeView5ItemClicked(const QModelIndex &index)
+{
+    activeDatabase = index.data(Qt::DisplayRole).toString();
+}
+
+void Lernapp::selectDatabase(QString db)
+{
+    if(database.isOpen()) {
+        database.close();
+    }
+    database.setDatabaseName(pathSystem + "/data_Lernapp/datenbank_Lernapp/" + db);
+
+    if(!database.open())
+    {
+        error_database(database);
+    }
+
+    QSqlQuery query(database);
+    query.prepare("CREATE TABLE IF NOT EXISTS Fragen ("
+                  "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                  "frage_text TEXT UNIQUE NOT NULL,"
+                  "ist_wahr BOOLEAN NOT NULL DEFAULT 0,"
+                  "erstellt_von TEXT,"
+                  "erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+                  ");");
+    if(!query.exec())
+        error_query(query.lastError());
+
+    listDatabaseTableView(ui->tableView2_1);
+}
+
+
+void Lernapp::deleteDataEntryServer(QTreeWidgetItem *item, int index)
+{
+    selectedItemServer = item->text(index);
+    qDebug() << selectedItemServer;
 }
 
 //cUrl Funktionen
@@ -475,6 +611,7 @@ QStringList Lernapp::getFTPFileList(const QString& ftpUrl, const QString& userna
         // FTP Listing abrufen
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Lernapp::getDirFtp);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fileList);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
@@ -488,6 +625,15 @@ QStringList Lernapp::getFTPFileList(const QString& ftpUrl, const QString& userna
 
     return fileList;
 }
+
+
+
+
+
+
+
+
+
 
 
 
