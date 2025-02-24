@@ -69,9 +69,9 @@ void Lernapp::on_button1_2_clicked()
 void Lernapp::on_button1_3_clicked() // Datenbank öffnen
 {
     listDataTreeRoot();
+    refreshServer();
 
     ui->stackedWidget->setCurrentIndex(3);
-
     ui->treeWidget->setColumnCount(1);
     ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
 
@@ -148,14 +148,32 @@ void Lernapp::on_button2_3_clicked() // Frage speichern
 
 void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
 {
+    if(activeDatabase != "") {
 
+        QFile file;
+        QDir::setCurrent(pathSystem + "/data_Lernapp/datenbank_Lernapp/");
+        file.setFileName(activeDatabase);
+
+        if(!file.rename(ui->lineEdit2_3->text())) {
+            QMessageBox::warning(this, "Fehler", tr("Datenbank konnte nicht umbenannt werden.\n%1").arg(file.errorString()));
+            qDebug() << file.fileName();
+        } else {
+            ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(ui->lineEdit2_3->text()));
+            listDatabaseTableView(ui->tableView2_1);
+        }
+    } else {
+        QMessageBox::warning(this, "Fehler", "Bitte wählen Sie eine Datenbank vorher aus.");
+    }
+    ui->lineEdit2_3->clear();
 }
 
 void Lernapp::on_button2_5_clicked() //Neue Datenbank erstellen
 {
-    QString newDatabase = ui->lineEdit2_2->text();
-    selectDatabase(newDatabase);
-    ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(newDatabase));
+    activeDatabase = ui->lineEdit2_2->text();
+    selectDatabase(activeDatabase);
+    ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(activeDatabase));
+    listDatabaseTableView(ui->tableView2_1);
+    ui->lineEdit2_2->clear();
 }
 
 //Seite 3
@@ -225,31 +243,16 @@ void Lernapp::on_button4_4_clicked() //Download
                 // qDebug() << "Download erfolgreich! Datei gespeichert unter:" << filePath;
 
             }
-            curl_global_cleanup();
         }
     } else {
         QMessageBox::warning(nullptr, tr("Datei nicht gefunden"), tr("Bitten waehlen Sie eine Datei aus der unteren Liste aus."));
     }
-
+    curl_global_cleanup();
+    refreshServer();
 }
 
 void Lernapp::on_button4_5_clicked() { // Inhalt vom Server auflisten
-    ui->treeWidget->clear();
-    ui->treeWidget->setColumnCount(1);
-    ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
-
-    // FTP-Dateien abrufen
-    QString ftpUrl = "ftp://138.199.195.70:21/files/";
-    QString username = "bob";
-    QString password = "Kartoffel123?!";
-    QStringList files = getFTPFileList(ftpUrl, username, password);
-
-    // Dateien zum TreeWidget hinzufügen
-    for (const QString& file : files) {
-        QTreeWidgetItem* item = new QTreeWidgetItem(ui->treeWidget);
-        item->setText(0, file);
-        ui->treeWidget->addTopLevelItem(item);
-    }
+    refreshServer();
 }
 
 void Lernapp::on_button4_6_clicked() // Upload
@@ -276,7 +279,7 @@ void Lernapp::on_button4_6_clicked() // Upload
     curl = curl_easy_init();
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);  // Hochladen aktivieren
-        curl_easy_setopt(curl, CURLOPT_URL, fullFtpURL.toUtf8().constData());  // FTP-Ziel-URL mit Dateiname
+        curl_easy_setopt(curl, CURLOPT_URL, fullFtpURL.toStdString().c_str());  // FTP-Ziel-URL mit Dateiname
         curl_easy_setopt(curl, CURLOPT_USERPWD, "bob:Kartoffel123?!"); // FTP-Login
         curl_easy_setopt(curl, CURLOPT_READDATA, file);  // Datei als Datenquelle setzen
         curl_easy_setopt(curl, CURLOPT_FTP_CREATE_MISSING_DIRS, CURLFTP_CREATE_DIR); // Fehlende Ordner erstellen
@@ -284,6 +287,7 @@ void Lernapp::on_button4_6_clicked() // Upload
 
         // Upload starten
         res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
         if (res != CURLE_OK) {
             qWarning() << "Fehler beim Hochladen:" << curl_easy_strerror(res);
             QMessageBox::warning(nullptr, tr("Fehler"), tr("Upload fehlgeschlagen: %1").arg(curl_easy_strerror(res)));
@@ -293,23 +297,18 @@ void Lernapp::on_button4_6_clicked() // Upload
 
         // Aufräumen
         fclose(file);
-        curl_easy_cleanup(curl);
     } else {
         qWarning() << "Fehler: cURL konnte nicht initialisiert werden.";
         fclose(file);
     }
-
     curl_global_cleanup();
+    refreshServer();
 }
 
-void Lernapp::on_button4_7_clicked()
+void Lernapp::on_button4_7_clicked() //Server-Datei löschen
 {
     if(selectedItemServer != "") {
-        msgBox.setText("Die Datei wird gelöscht!");
-        msgBox.setInformativeText(tr("Sind sie sicher, dass sie die Datei %1 löschen wollen?").arg(selectedItemServer));
-        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        msgBox.setDefaultButton(QMessageBox::Yes);
-        int ret = msgBox.exec();
+        QMessageBox::StandardButton ret = QMessageBox::question(this, tr("Die Datei wird gelöscht!"), tr("Sind sie sicher, dass sie die Datei %1 löschen wollen?").arg(selectedItemServer), QMessageBox::Yes | QMessageBox::No);
         switch(ret) {
         case QMessageBox::No:
         {
@@ -357,6 +356,7 @@ void Lernapp::on_button4_7_clicked()
     } else {
         QMessageBox::warning(nullptr, tr("Keine Datei ausgewählt."), tr("Bitte aktualisieren Sie die Liste und klicken Sie eine Datei aus."));
     }
+    refreshServer();
 }
 
 
@@ -364,6 +364,7 @@ void Lernapp::on_button4_7_clicked()
 
 void Lernapp::on_button5_1_clicked()
 {
+    listDatabaseTableView(ui->tableView2_1);
     ui->stackedWidget->setCurrentIndex(lastIndex);
 }
 
@@ -569,6 +570,26 @@ void Lernapp::selectDatabase(QString db)
         error_query(query.lastError());
 
     listDatabaseTableView(ui->tableView2_1);
+}
+
+void Lernapp::refreshServer()
+{
+    ui->treeWidget->clear();
+    ui->treeWidget->setColumnCount(1);
+    ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
+
+    // FTP-Dateien abrufen
+    QString ftpUrl = "ftp://138.199.195.70:21/files/";
+    QString username = "bob";
+    QString password = "Kartoffel123?!";
+    QStringList files = getFTPFileList(ftpUrl, username, password);
+
+    // Dateien zum TreeWidget hinzufügen
+    for (const QString& file : files) {
+        QTreeWidgetItem* item = new QTreeWidgetItem(ui->treeWidget);
+        item->setText(0, file);
+        ui->treeWidget->addTopLevelItem(item);
+    }
 }
 
 

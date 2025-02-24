@@ -18,6 +18,7 @@
 #include <QTreeWidgetItem>
 #include <QTableView>
 #include <QStandardPaths>
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -68,6 +69,8 @@ private slots:
 
     void selectDatabase(QString db);
 
+    void refreshServer();
+
     //GUI
 
     void on_button1_1_clicked();
@@ -78,6 +81,8 @@ private slots:
     void on_button2_1_clicked();
     void on_button2_2_clicked();
     void on_button2_3_clicked();
+    void on_button2_4_clicked();
+    void on_button2_5_clicked();
 
     void on_button3_1_clicked();
     void on_button3_2_clicked();
@@ -88,22 +93,12 @@ private slots:
     void on_button4_6_clicked();
     void on_button4_7_clicked();
 
-    // Debugging
-    void on_actionNext_triggered();
-
-    void on_actionBack_triggered();
-
-
-
-
-
     void on_button5_1_clicked();
-
     void on_button5_2_clicked();
 
-    void on_button2_4_clicked();
-
-    void on_button2_5_clicked();
+    // Debugging
+    void on_actionNext_triggered();
+    void on_actionBack_triggered();
 
 private:
     Ui::Lernapp *ui;
