@@ -2,6 +2,7 @@
 #define LERNAPP_H
 
 #include <QMainWindow>
+#include <QApplication>
 #include <QSql>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -19,6 +20,7 @@
 #include <QTableView>
 #include <QStandardPaths>
 #include <QFile>
+#include <QUrl>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -40,6 +42,7 @@ public:
     QString const pathSystem = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
     QMessageBox msgBox;
     int lastIndex = 0;
+    int lastIndexNow = 0;
 
     //Server cURL
     static size_t WriteCallBack(void* contents, size_t size, size_t nmemb, void* userp);
@@ -68,23 +71,27 @@ private slots:
     void treeView5ItemClicked(const QModelIndex &index);
 
     void selectDatabase(QString db);
+    void isDatabaseActive();
+
+    void disableTabs();
+    void lastSelectedTab(int index);
 
     void refreshServer();
 
     //GUI
 
-    void on_button1_1_clicked();
-    void on_button1_2_clicked();
-    void on_button1_3_clicked();
-    void on_button1_4_clicked();
+    void clickedServerTab();
+    void clickedUebersichtTab();
 
-    void on_button2_1_clicked();
+    // Tab 0 Startseite
+    void on_button_editorStart_clicked();
+
+    // Tab 1 Bearbeiten
     void on_button2_2_clicked();
     void on_button2_3_clicked();
     void on_button2_4_clicked();
-    void on_button2_5_clicked();
+    void on_button_createNewDatabase_clicked();
 
-    void on_button3_1_clicked();
     void on_button3_2_clicked();
 
     void on_button4_2_clicked();
@@ -99,6 +106,7 @@ private slots:
     // Debugging
     void on_actionNext_triggered();
     void on_actionBack_triggered();
+
 
 private:
     Ui::Lernapp *ui;

@@ -3,8 +3,6 @@
 #include "curl/curl.h"
 
 #include <fstream>
-#include <QApplication>
-#include <QUrl>
 #include <iostream>
 
 Lernapp::Lernapp(QWidget *parent)
@@ -12,23 +10,19 @@ Lernapp::Lernapp(QWidget *parent)
     , ui(new Ui::Lernapp)
 {
     ui->setupUi(this);
-    ui->stackedWidget->setCurrentIndex(0);
+    disableTabs();
+    ui->tabWidget->setCurrentIndex(0);
+
     connect(ui->treeView4_1, &QTreeView::clicked, this, &::Lernapp::treeView4ItemClicked);
     connect(ui->treeView5_1, &QTreeView::clicked, this, &::Lernapp::treeView5ItemClicked);
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &Lernapp::deleteDataEntryServer);
-    // ui->tabWidget->hide();
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &Lernapp::lastSelectedTab);
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &Lernapp::clickedServerTab);
+    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &Lernapp::clickedUebersichtTab);
 
     setupDir();
     setupDatabaseDir();
     database = QSqlDatabase::addDatabase("QSQLITE");
-    // database = QSqlDatabase::addDatabase("QSQLITE");
-    // database.setDatabaseName(pathSystem + "/data_Lernapp/datenbank_Lernapp/leereDatenbank.sqlite3");
-
-    // if(!database.open())
-    // {
-    //     error_database(database);
-    // }
-
 
     // QSqlQuery query(database);
     // query.prepare("CREATE TABLE IF NOT EXISTS Fragen ("
@@ -56,47 +50,37 @@ Lernapp::~Lernapp()
 
 //Seite 1
 
-void Lernapp::on_button1_1_clicked()
+void Lernapp::on_button_editorStart_clicked() // Editor starten
 {
-    listDatabaseTableView(ui->tableView2_1);
-    ui->stackedWidget->setCurrentIndex(1);
-}
-void Lernapp::on_button1_2_clicked()
-{
-    listDatabaseTableView(ui->tableView3_1);
-    ui->stackedWidget->setCurrentIndex(2);
-}
-void Lernapp::on_button1_3_clicked() // Datenbank öffnen
-{
-    listDataTreeRoot();
-    refreshServer();
+    ui->tabWidget->setTabVisible(4,true);
 
-    ui->stackedWidget->setCurrentIndex(3);
-    ui->treeWidget->setColumnCount(1);
-    ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
+    ui->tabWidget->setTabEnabled(1,false);
+    ui->tabWidget->setTabVisible(1,true);
 
-}
-void Lernapp::on_button1_4_clicked()
-{
-    ui->stackedWidget->setCurrentIndex(4);
+    ui->tabWidget->setTabEnabled(2,false);
+    ui->tabWidget->setTabVisible(2,true);
+
+    // ui->tabWidget->setTabEnabled(3,false);
+    ui->tabWidget->setTabVisible(3,true);
+
+
+    listDatabaseTreeView(ui->treeView5_1);
+    isDatabaseActive();
+
+    ui->tabWidget->setCurrentIndex(4);
 }
 
 //Seite 2
 
-void Lernapp::on_button2_1_clicked() // Lokale Datenbank öffnen
-{
-    listDatabaseTreeView(ui->treeView5_1);
-    ui->stackedWidget->setCurrentIndex(4);
-    lastIndex = 1;
-}
 void Lernapp::on_button2_2_clicked() //Startseite
 {
-    ui->stackedWidget->setCurrentIndex(0);
+    disableTabs();
+    ui->tabWidget->setCurrentIndex(0);
 }
 void Lernapp::on_button2_3_clicked() // Frage speichern
 {
     frageText = ui->textEdit2_1->toPlainText();
-    erstelltVonText = ui->lineEdit2_1->displayText();
+    erstelltVonText = ui->lineEdit_createNewDatabase->displayText();
 
     if(ui->textEdit2_1->toPlainText() == "")
     {
@@ -167,31 +151,27 @@ void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
     ui->lineEdit2_3->clear();
 }
 
-void Lernapp::on_button2_5_clicked() //Neue Datenbank erstellen
+void Lernapp::on_button_createNewDatabase_clicked() //Neue Datenbank erstellen
 {
-    activeDatabase = ui->lineEdit2_2->text();
+    activeDatabase = ui->lineEdit_createNewDatabase->text();
     selectDatabase(activeDatabase);
     ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(activeDatabase));
     listDatabaseTableView(ui->tableView2_1);
-    ui->lineEdit2_2->clear();
+    ui->lineEdit_createNewDatabase->clear();
 }
 
 //Seite 3
 
-void Lernapp::on_button3_1_clicked()
-{
-    ui->stackedWidget->setCurrentIndex(4);
-}
 void Lernapp::on_button3_2_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(0);
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 //Seite 4
 
 void Lernapp::on_button4_2_clicked()
 {
-    ui->stackedWidget->setCurrentIndex(0);
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 void Lernapp::on_button4_4_clicked() //Download
@@ -365,7 +345,7 @@ void Lernapp::on_button4_7_clicked() //Server-Datei löschen
 void Lernapp::on_button5_1_clicked()
 {
     listDatabaseTableView(ui->tableView2_1);
-    ui->stackedWidget->setCurrentIndex(lastIndex);
+    ui->tabWidget->setCurrentIndex(lastIndex);
 }
 
 
@@ -378,7 +358,17 @@ void Lernapp::on_button5_2_clicked()
         if(reply == QMessageBox::Yes) {
             ui->label2_1->setText(tr("Aktive Datenbank : %1").arg(activeDatabase));
             selectDatabase(activeDatabase);
-            ui->stackedWidget->setCurrentIndex(lastIndex);
+            if(database.isValid()) {
+                isDatabaseActive();
+                if(lastIndex != 1 ) {
+                    ui->tabWidget->setCurrentIndex(1);
+                } else {
+                    ui->tabWidget->setCurrentIndex(lastIndex);
+                }
+            } else {
+                ui->tabWidget->setCurrentIndex(lastIndex);
+                qDebug() << "Database not valid";
+            }
         } else {
             activeDatabase = buffer;
         }
@@ -387,6 +377,7 @@ void Lernapp::on_button5_2_clicked()
     }
 }
 
+//Lernen
 //Seite 6
 
 
@@ -404,14 +395,14 @@ void Lernapp::on_button5_2_clicked()
 
 void Lernapp::on_actionNext_triggered()
 {
-    ui->stackedWidget->setCurrentIndex((ui->stackedWidget->currentIndex()+1));
-    QString site = "Seite: " + QString::number(ui->stackedWidget->currentIndex());
+    ui->tabWidget->setCurrentIndex((ui->tabWidget->currentIndex()+1));
+    QString site = "Seite: " + QString::number(ui->tabWidget->currentIndex());
     ui->menuSeite->setTitle(site);
 }
 void Lernapp::on_actionBack_triggered()
 {
-    ui->stackedWidget->setCurrentIndex((ui->stackedWidget->currentIndex()-1));
-    QString site = "Seite: " + QString::number(ui->stackedWidget->currentIndex());
+    ui->tabWidget->setCurrentIndex((ui->tabWidget->currentIndex()-1));
+    QString site = "Seite: " + QString::number(ui->tabWidget->currentIndex());
     ui->menuSeite->setTitle(site);
 }
 
@@ -572,6 +563,75 @@ void Lernapp::selectDatabase(QString db)
     listDatabaseTableView(ui->tableView2_1);
 }
 
+void Lernapp::isDatabaseActive()
+{
+    if(database.databaseName() != "") {
+        ui->tabWidget->setTabEnabled(1,true);
+        ui->tabWidget->setTabEnabled(2,true);
+        ui->tabWidget->setTabEnabled(3,true);
+        ui->tableView2_1->setDisabled(0);
+        ui->button2_3->setDisabled(0);
+        // ui->lineEdit2_3->setDisabled(0);
+        // ui->button2_4->setDisabled(0);
+        // ui->button_createNewDatabase->setDisabled(0);
+        // ui->lineEdit_createNewDatabase->setDisabled(0);
+        ui->radiobutton2_1->setDisabled(0);
+        ui->radiobutton2_2->setDisabled(0);
+        ui->textEdit2_1->setDisabled(0);
+    } else {
+        ui->tableView2_1->setDisabled(1);
+        // ui->button2_3->setDisabled(1);
+        // ui->lineEdit2_3->setDisabled(1);
+        // ui->button2_4->setDisabled(1);
+        // ui->button_createNewDatabase->setDisabled(1);
+        // ui->lineEdit_createNewDatabase->setDisabled(1);
+        ui->radiobutton2_1->setDisabled(1);
+        ui->radiobutton2_2->setDisabled(1);
+        ui->textEdit2_1->setDisabled(1);
+    }
+}
+
+void Lernapp::disableTabs()
+{
+    ui->tabWidget->setTabVisible(0, false);
+    ui->tabWidget->setTabVisible(1, false);
+    ui->tabWidget->setTabVisible(2, false);
+    ui->tabWidget->setTabVisible(3, false);
+    ui->tabWidget->setTabVisible(4, false);
+    ui->tabWidget->setTabVisible(5, false);
+    ui->tabWidget->setTabVisible(6, false);
+    ui->tabWidget->setTabVisible(7, false);
+    ui->tabWidget->setTabVisible(8, false);
+}
+
+void Lernapp::lastSelectedTab(int index)
+{
+    if(lastIndexNow == lastIndex) {
+
+    } else {
+        lastIndex = lastIndexNow;
+    }
+    lastIndexNow = index;
+}
+
+void Lernapp::clickedServerTab()
+{
+    if(ui->tabWidget->currentIndex() == 3) {
+        listDataTreeRoot();
+        refreshServer();
+
+        ui->treeWidget->setColumnCount(1);
+        ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
+    } else {
+
+    }
+}
+
+void Lernapp::clickedUebersichtTab()
+{
+    listDatabaseTableView(ui->tableView3_1);
+}
+
 void Lernapp::refreshServer()
 {
     ui->treeWidget->clear();
@@ -646,15 +706,3 @@ QStringList Lernapp::getFTPFileList(const QString& ftpUrl, const QString& userna
 
     return fileList;
 }
-
-
-
-
-
-
-
-
-
-
-
-
