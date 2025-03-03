@@ -160,18 +160,40 @@ void Lernapp::on_button_createNewDatabase_clicked() //Neue Datenbank erstellen
     ui->lineEdit_createNewDatabase->clear();
 }
 
+void Lernapp::on_button_deleteDatabase_clicked()
+{
+    QFile db;
+    QMessageBox::StandardButton reply;
+    if(selectedItemLocal != "") {
+        reply = QMessageBox::question(this,"Datenbank wird gelöschen!", tr("Die Datei %1 wird entgültig vom System gelöscht.\nFortfahren?").arg(selectedItemLocal), QMessageBox::Yes | QMessageBox::No);
+        if(QMessageBox::Yes == reply) {
+            if(QDir::setCurrent(pathSystem + "/data_Lernapp/datenbank_Lernapp")) {
+                db.setFileName(activeDatabase);
+                db.remove();
+                listDatabaseTreeView(ui->treeView5_1);
+            } else {
+                QMessageBox::warning(this, tr("Konnte nicht gelöscht werden!"), tr("%1").arg(db.errorString()));
+            }
+        } else {
+            listDatabaseTreeView(ui->treeView5_1);
+        }
+    } else {
+        QMessageBox::information(this, tr("Keine Datenbank ausgewählt."), "Bitte wählen Sie eine Datenbank aus.");
+    }
+}
+
 //Seite 3
 
 void Lernapp::on_button3_2_clicked()
 {
-    ui->tabWidget->setCurrentIndex(0);
+    ui->tabWidget->setCurrentIndex(lastIndex);
 }
 
 //Seite 4
 
 void Lernapp::on_button4_2_clicked()
 {
-    ui->tabWidget->setCurrentIndex(0);
+    ui->tabWidget->setCurrentIndex(lastIndex);
 }
 
 void Lernapp::on_button4_4_clicked() //Download
@@ -456,11 +478,7 @@ QStringList Lernapp::parseFTPList(const QString &response) { //Output-Datei filt
 void Lernapp::setupDir() {
 
     QString pathDatenbank;
-
-    qDebug() << pathSystem << "" << pathDatenbank;
     pathDatenbank = pathSystem + "/data_Lernapp";
-    qDebug() << pathSystem << "" << pathDatenbank;
-
     QDir dir;
     if (!dir.exists(pathDatenbank)) {
         if (!dir.mkpath(pathDatenbank)) {
@@ -474,10 +492,7 @@ void Lernapp::setupDir() {
 void Lernapp::setupDatabaseDir()
 {
     QString pathDatenbank;
-
-    qDebug() << pathSystem << "" << pathDatenbank;
     pathDatenbank = pathSystem + "/data_Lernapp/datenbank_Lernapp";
-    qDebug() << pathSystem << "" << pathDatenbank;
 
     QDir dir;
     if (!dir.exists(pathDatenbank)) {
@@ -492,10 +507,7 @@ void Lernapp::setupDatabaseDir()
 void Lernapp::setupDownloadDir()
 {
     QString pathDatenbank;
-
-    qDebug() << pathSystem << "" << pathDatenbank;
     pathDatenbank = pathSystem + "/data_Lernapp/download_Lernapp";
-    qDebug() << pathSystem << "" << pathDatenbank;
 
     QDir dir;
     if (!dir.exists(pathDatenbank)) {
@@ -525,6 +537,9 @@ void Lernapp::listDatabaseTreeView(QTreeView* view)
 
     view->setModel(model);
     view->setRootIndex(model->index(pathLocaleFiles));
+    view->hideColumn(1);
+    view->hideColumn(2);
+    view->hideColumn(3);
 }
 
 void Lernapp::treeView4ItemClicked(const QModelIndex &index)
@@ -535,6 +550,7 @@ void Lernapp::treeView4ItemClicked(const QModelIndex &index)
 void Lernapp::treeView5ItemClicked(const QModelIndex &index)
 {
     activeDatabase = index.data(Qt::DisplayRole).toString();
+    selectedItemLocal = index.data(Qt::DisplayRole).toString();
 }
 
 void Lernapp::selectDatabase(QString db)
@@ -617,7 +633,8 @@ void Lernapp::lastSelectedTab(int index)
 void Lernapp::clickedServerTab()
 {
     if(ui->tabWidget->currentIndex() == 3) {
-        listDataTreeRoot();
+        // listDataTreeRoot();
+        listDatabaseTreeView(ui->treeView4_1);
         refreshServer();
 
         ui->treeWidget->setColumnCount(1);
@@ -706,3 +723,6 @@ QStringList Lernapp::getFTPFileList(const QString& ftpUrl, const QString& userna
 
     return fileList;
 }
+
+
+

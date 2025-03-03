@@ -3,18 +3,21 @@
 
 #include <QMainWindow>
 #include <QApplication>
+#include <QCoreApplication>
+#include <QMessageBox>
+
 #include <QSql>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QMessageBox>
 #include <QSqlQueryModel>
 #include <QSqlTableModel>
+
 #include <QDir>
 #include <curl/curl.h>
 #include <qboxlayout.h>
+
 #include <QRegularExpression>
-#include <QCoreApplication>
 #include <QFileSystemModel>
 #include <QTreeWidgetItem>
 #include <QTableView>
@@ -107,6 +110,8 @@ private slots:
     void on_actionNext_triggered();
     void on_actionBack_triggered();
 
+
+    void on_button_deleteDatabase_clicked();
 
 private:
     Ui::Lernapp *ui;

@@ -23,15 +23,6 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Sql Network)
 
-# CPMAddPackage(
-#     NAME libpsl
-#     GIT_REPOSITORY "https://github.com/rockdaboot/libpsl.git"
-#     GIT_TAG "0.21.5"
-#     # CONFIGURE_COMMAND ./autogen.sh && ./configure --disable-shared --prefix=${CMAKE_BINARY_DIR}/_deps/libpsl-install
-#     # BUILD_COMMAND make -j$(nproc)
-#     # INSTALL_COMMAND make install
-# )
-
 CPMAddPackage(
     NAME mbedtls
     GITHUB_REPOSITORY "Mbed-TLS/mbedtls"
