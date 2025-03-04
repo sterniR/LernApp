@@ -12,13 +12,13 @@ Lernapp::Lernapp(QWidget *parent)
     ui->setupUi(this);
     disableTabs();
     ui->tabWidget->setCurrentIndex(0);
+    ui->button_home->hide();
+
 
     connect(ui->treeView4_1, &QTreeView::clicked, this, &::Lernapp::treeView4ItemClicked);
     connect(ui->treeView5_1, &QTreeView::clicked, this, &::Lernapp::treeView5ItemClicked);
-    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &Lernapp::deleteDataEntryServer);
+    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &Lernapp::itemClickedTreeView);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &Lernapp::lastSelectedTab);
-    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &Lernapp::clickedServerTab);
-    connect(ui->tabWidget, &QTabWidget::currentChanged, this, &Lernapp::clickedUebersichtTab);
 
     setupDir();
     setupDatabaseDir();
@@ -72,15 +72,20 @@ void Lernapp::on_button_editorStart_clicked() // Editor starten
 
 //Seite 2
 
-void Lernapp::on_button2_2_clicked() //Startseite
+void Lernapp::on_button_home_clicked()
 {
-    disableTabs();
-    ui->tabWidget->setCurrentIndex(0);
+    if(ui->tabWidget->currentIndex() == 0) {
+        ui->button_home->hide();
+    } else {
+        ui->button_home->show();
+        disableTabs();
+        ui->tabWidget->setCurrentIndex(0);
+    }
 }
 void Lernapp::on_button2_3_clicked() // Frage speichern
 {
     frageText = ui->textEdit2_1->toPlainText();
-    erstelltVonText = ui->lineEdit_createNewDatabase->displayText();
+    erstelltVonText = ui->lineEdit2_1->displayText();
 
     if(ui->textEdit2_1->toPlainText() == "")
     {
@@ -90,11 +95,11 @@ void Lernapp::on_button2_3_clicked() // Frage speichern
     {
         QMessageBox::warning(this,"Gleiche Frage","Diese Frage existiert schon.\nBitte aendern Sie die Frage.");
     }
-    else if(ui->radiobutton2_1->isChecked())
+    else if(ui->radioButton2_1->isChecked())
     {
         istWahrText = "1";
     }
-    else if(ui->radiobutton2_2->isChecked())
+    else if(ui->radioButton2_2->isChecked())
     {
         istWahrText = "0";
     }
@@ -108,7 +113,7 @@ void Lernapp::on_button2_3_clicked() // Frage speichern
     {
 
     }
-    else if((!ui->radiobutton2_1->isChecked() && !ui->radiobutton2_2->isChecked()))
+    else if((!ui->radioButton2_1->isChecked() && !ui->radioButton2_2->isChecked()))
     {
 
     }
@@ -132,11 +137,11 @@ void Lernapp::on_button2_3_clicked() // Frage speichern
 
 void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
 {
-    if(activeDatabase != "") {
+    if(selectedItemLocal != "") {
 
         QFile file;
         QDir::setCurrent(pathSystem + "/data_Lernapp/datenbank_Lernapp/");
-        file.setFileName(activeDatabase);
+        file.setFileName(selectedItemLocal);
 
         if(!file.rename(ui->lineEdit2_3->text())) {
             QMessageBox::warning(this, "Fehler", tr("Datenbank konnte nicht umbenannt werden.\n%1").arg(file.errorString()));
@@ -144,6 +149,11 @@ void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
         } else {
             ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(ui->lineEdit2_3->text()));
             listDatabaseTableView(ui->tableView2_1);
+            ui->button5_2->setDisabled(1);
+            ui->lineEdit2_3->setDisabled(1);
+            ui->button2_4->setDisabled(1);
+            listDatabaseTreeView(ui->treeView5_1);
+            selectedItemLocal.clear();
         }
     } else {
         QMessageBox::warning(this, "Fehler", "Bitte wählen Sie eine Datenbank vorher aus.");
@@ -153,14 +163,13 @@ void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
 
 void Lernapp::on_button_createNewDatabase_clicked() //Neue Datenbank erstellen
 {
-    activeDatabase = ui->lineEdit_createNewDatabase->text();
-    selectDatabase(activeDatabase);
-    ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(activeDatabase));
-    listDatabaseTableView(ui->tableView2_1);
+    QString createdDatabaseText = ui->lineEdit_createNewDatabase->text();
+    selectDatabase(createdDatabaseText);
     ui->lineEdit_createNewDatabase->clear();
+    createdDatabaseText.clear();
 }
 
-void Lernapp::on_button_deleteDatabase_clicked()
+void Lernapp::on_button_deleteDatabase_clicked() // Lokale Datenbank löschen
 {
     QFile db;
     QMessageBox::StandardButton reply;
@@ -168,32 +177,26 @@ void Lernapp::on_button_deleteDatabase_clicked()
         reply = QMessageBox::question(this,"Datenbank wird gelöschen!", tr("Die Datei %1 wird entgültig vom System gelöscht.\nFortfahren?").arg(selectedItemLocal), QMessageBox::Yes | QMessageBox::No);
         if(QMessageBox::Yes == reply) {
             if(QDir::setCurrent(pathSystem + "/data_Lernapp/datenbank_Lernapp")) {
-                db.setFileName(activeDatabase);
+                db.setFileName(selectedItemLocal);
                 db.remove();
+                ui->button5_2->setDisabled(1);
+                ui->lineEdit2_3->setDisabled(1);
+                ui->button2_4->setDisabled(1);
                 listDatabaseTreeView(ui->treeView5_1);
+                selectedItemLocal.clear();
             } else {
                 QMessageBox::warning(this, tr("Konnte nicht gelöscht werden!"), tr("%1").arg(db.errorString()));
             }
         } else {
             listDatabaseTreeView(ui->treeView5_1);
+            ui->button5_2->setDisabled(1);
+            ui->lineEdit2_3->setDisabled(1);
+            ui->button2_4->setDisabled(1);
+            selectedItemLocal.clear();
         }
     } else {
         QMessageBox::information(this, tr("Keine Datenbank ausgewählt."), "Bitte wählen Sie eine Datenbank aus.");
     }
-}
-
-//Seite 3
-
-void Lernapp::on_button3_2_clicked()
-{
-    ui->tabWidget->setCurrentIndex(lastIndex);
-}
-
-//Seite 4
-
-void Lernapp::on_button4_2_clicked()
-{
-    ui->tabWidget->setCurrentIndex(lastIndex);
 }
 
 void Lernapp::on_button4_4_clicked() //Download
@@ -361,25 +364,16 @@ void Lernapp::on_button4_7_clicked() //Server-Datei löschen
     refreshServer();
 }
 
-
-//Seite 5
-
-void Lernapp::on_button5_1_clicked()
-{
-    listDatabaseTableView(ui->tableView2_1);
-    ui->tabWidget->setCurrentIndex(lastIndex);
-}
-
-
 void Lernapp::on_button5_2_clicked()
 {
-    QString buffer = activeDatabase;
-    if(activeDatabase != "") {
+    QString buffer = selectedItemLocal; // Lokale Datenbank auswählen
+    if(selectedItemLocal != "") {
         QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Datenbank auswählen", tr("Möchten Sie die Datenbank: %1\nals aktive Datenbank auswählen?").arg(activeDatabase), QMessageBox::Yes | QMessageBox::No);
+        reply = QMessageBox::question(this, "Datenbank auswählen", tr("Möchten Sie die Datenbank: %1\nals aktive Datenbank auswählen?").arg(selectedItemLocal), QMessageBox::Yes | QMessageBox::No);
         if(reply == QMessageBox::Yes) {
-            ui->label2_1->setText(tr("Aktive Datenbank : %1").arg(activeDatabase));
-            selectDatabase(activeDatabase);
+            ui->label2_1->setText(tr("Aktive Datenbank : %1").arg(selectedItemLocal));
+            selectDatabase(selectedItemLocal);
+            activeDatabase = selectedItemLocal;
             if(database.isValid()) {
                 isDatabaseActive();
                 if(lastIndex != 1 ) {
@@ -392,7 +386,12 @@ void Lernapp::on_button5_2_clicked()
                 qDebug() << "Database not valid";
             }
         } else {
-            activeDatabase = buffer;
+            selectedItemLocal = buffer;
+            ui->button5_2->setDisabled(1);
+            ui->lineEdit2_3->setDisabled(1);
+            ui->button2_4->setDisabled(1);
+            selectedItemLocal.clear();
+            listDatabaseTreeView(ui->treeView5_1);
         }
     } else {
         QMessageBox::warning(this, "Fehler", "Keine Datenbank ausgewählt.\nKlicken Sie eine Datenbank aus, bevor Sie auf auswählen klicken!");
@@ -549,8 +548,19 @@ void Lernapp::treeView4ItemClicked(const QModelIndex &index)
 
 void Lernapp::treeView5ItemClicked(const QModelIndex &index)
 {
-    activeDatabase = index.data(Qt::DisplayRole).toString();
     selectedItemLocal = index.data(Qt::DisplayRole).toString();
+    selectedItemLocal = index.data(Qt::DisplayRole).toString();
+
+    if(selectedItemLocal != "") {
+        ui->button5_2->setDisabled(0);
+        ui->lineEdit2_3->setDisabled(0);
+        ui->button2_4->setDisabled(0);
+    } else {
+        ui->button5_2->setDisabled(1);
+        ui->lineEdit2_3->setDisabled(1);
+        ui->button2_4->setDisabled(1);
+        listDatabaseTreeView(ui->treeView5_1);
+    }
 }
 
 void Lernapp::selectDatabase(QString db)
@@ -587,22 +597,13 @@ void Lernapp::isDatabaseActive()
         ui->tabWidget->setTabEnabled(3,true);
         ui->tableView2_1->setDisabled(0);
         ui->button2_3->setDisabled(0);
-        // ui->lineEdit2_3->setDisabled(0);
-        // ui->button2_4->setDisabled(0);
-        // ui->button_createNewDatabase->setDisabled(0);
-        // ui->lineEdit_createNewDatabase->setDisabled(0);
-        ui->radiobutton2_1->setDisabled(0);
-        ui->radiobutton2_2->setDisabled(0);
+        ui->radioButton2_1->setDisabled(0);
+        ui->radioButton2_2->setDisabled(0);
         ui->textEdit2_1->setDisabled(0);
     } else {
         ui->tableView2_1->setDisabled(1);
-        // ui->button2_3->setDisabled(1);
-        // ui->lineEdit2_3->setDisabled(1);
-        // ui->button2_4->setDisabled(1);
-        // ui->button_createNewDatabase->setDisabled(1);
-        // ui->lineEdit_createNewDatabase->setDisabled(1);
-        ui->radiobutton2_1->setDisabled(1);
-        ui->radiobutton2_2->setDisabled(1);
+        ui->radioButton2_1->setDisabled(1);
+        ui->radioButton2_2->setDisabled(1);
         ui->textEdit2_1->setDisabled(1);
     }
 }
@@ -628,25 +629,37 @@ void Lernapp::lastSelectedTab(int index)
         lastIndex = lastIndexNow;
     }
     lastIndexNow = index;
-}
 
-void Lernapp::clickedServerTab()
-{
-    if(ui->tabWidget->currentIndex() == 3) {
-        // listDataTreeRoot();
+    if(ui->tabWidget->currentIndex() == 3) { // Server-Tab
         listDatabaseTreeView(ui->treeView4_1);
         refreshServer();
-
         ui->treeWidget->setColumnCount(1);
-        ui->treeWidget->setHeaderLabels(QStringList() << "FTP-Dateien");
+        ui->button_home->show();
+    } else if(ui->tabWidget->currentIndex() == 2) { // Uebersicht-Tab
+        listDatabaseTableView(ui->tableView3_1);
+        ui->button_home->show();
+    } else if (ui->tabWidget->currentIndex() == 4) { // Lokale Datenbank auswählen-Tab
+        if(selectedItemLocal == "") {
+            ui->button5_2->setDisabled(1);
+            ui->lineEdit2_3->setDisabled(1);
+            ui->button2_4->setDisabled(1);
+        }
+        ui->button_home->show();
+    } else if(ui->tabWidget->currentIndex() == 0) { // Startseite-Tab
+        ui->button_home->hide();
+    } else if(ui->tabWidget->currentIndex() == 1) { // Bearbeiten-Tab
+        ui->button_home->show();
+        ui->tabWidget_2->setCurrentIndex(0);
+        ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(activeDatabase));
+        selectDatabase(activeDatabase);
+        listDatabaseTableView(ui->tableView2_1);
     } else {
-
+        ui->button_home->show();
+        ui->button5_2->setDisabled(0);
+        ui->lineEdit2_3->setDisabled(0);
+        ui->button2_4->setDisabled(0);
     }
-}
 
-void Lernapp::clickedUebersichtTab()
-{
-    listDatabaseTableView(ui->tableView3_1);
 }
 
 void Lernapp::refreshServer()
@@ -670,10 +683,12 @@ void Lernapp::refreshServer()
 }
 
 
-void Lernapp::deleteDataEntryServer(QTreeWidgetItem *item, int index)
+void Lernapp::itemClickedTreeView(QTreeWidgetItem *item, int index)
 {
+    selectedItemLocal = item->text(index);
     selectedItemServer = item->text(index);
     qDebug() << selectedItemServer;
+    qDebug() << selectedItemLocal;
 }
 
 //cUrl Funktionen
@@ -723,6 +738,3 @@ QStringList Lernapp::getFTPFileList(const QString& ftpUrl, const QString& userna
 
     return fileList;
 }
-
-
-

@@ -60,7 +60,7 @@ private slots:
     void error_query(QSqlError);
 
     //Funktionen
-    void deleteDataEntryServer(QTreeWidgetItem* item, int index);
+    void itemClickedTreeView(QTreeWidgetItem* item, int index);
 
     void setupDir();
     void setupDatabaseDir();
@@ -77,33 +77,27 @@ private slots:
     void isDatabaseActive();
 
     void disableTabs();
-    void lastSelectedTab(int index);
 
     void refreshServer();
 
     //GUI
 
-    void clickedServerTab();
-    void clickedUebersichtTab();
+    void lastSelectedTab(int index);
+    void on_button_home_clicked();
 
     // Tab 0 Startseite
     void on_button_editorStart_clicked();
 
     // Tab 1 Bearbeiten
-    void on_button2_2_clicked();
     void on_button2_3_clicked();
     void on_button2_4_clicked();
     void on_button_createNewDatabase_clicked();
 
-    void on_button3_2_clicked();
-
-    void on_button4_2_clicked();
     void on_button4_4_clicked();
     void on_button4_5_clicked();
     void on_button4_6_clicked();
     void on_button4_7_clicked();
 
-    void on_button5_1_clicked();
     void on_button5_2_clicked();
 
     // Debugging
@@ -112,6 +106,7 @@ private slots:
 
 
     void on_button_deleteDatabase_clicked();
+
 
 private:
     Ui::Lernapp *ui;
