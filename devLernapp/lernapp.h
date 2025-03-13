@@ -40,12 +40,13 @@ public:
     ~Lernapp();
 
     QSqlDatabase database;
-    QString frageText, frageTextKontrolle, erstelltVonText, istWahrText, selectedItemLocal, selectedItemServer, activeDatabase;
+    QString frageText, frageTextKontrolle, erstelltVonText, istWahrText, selectedItemLocal,
+        selectedItemServer, activeDatabase, statusOption = "1", antwortMitEingabeString,
+        istWahrMitText, istFalschMitText, istFalsch2MitText;
     QString ftpServerURL = "ftp://138.199.195.70:21/files/";
     QString const pathSystem = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
     QMessageBox msgBox;
-    int lastIndex = 0;
-    int lastIndexNow = 0;
+    int lastIndex = 0, lastIndexNow = 0, checkboxCounter = 1;
 
     //Server cURL
     static size_t WriteCallBack(void* contents, size_t size, size_t nmemb, void* userp);
@@ -58,9 +59,11 @@ private slots:
     //Database
     void error_database(QSqlDatabase);
     void error_query(QSqlError);
+    void insertIntoTableDatabase();
 
     //Funktionen
     void itemClickedTreeView(QTreeWidgetItem* item, int index);
+    void frageInputFinished();
 
     void setupDir();
     void setupDatabaseDir();
@@ -72,6 +75,7 @@ private slots:
 
     void treeView4ItemClicked(const QModelIndex &index);
     void treeView5ItemClicked(const QModelIndex &index);
+    void treeView5ItemdoubleClicked(const QModelIndex &index);
 
     void selectDatabase(QString db);
     void isDatabaseActive();
@@ -82,7 +86,9 @@ private slots:
 
     //GUI
 
-    void lastSelectedTab(int index);
+    void lastSelectedTab(int index); //TabWidget 1
+    void lastTabWidget2Clicked(int index); ////TabWidget 2
+
     void on_button_home_clicked();
 
     // Tab 0 Startseite
@@ -92,6 +98,7 @@ private slots:
     void on_button2_3_clicked();
     void on_button2_4_clicked();
     void on_button_createNewDatabase_clicked();
+    void checkboxStateChanged(Qt::CheckState state);
 
     void on_button4_4_clicked();
     void on_button4_5_clicked();
@@ -100,12 +107,15 @@ private slots:
 
     void on_button5_2_clicked();
 
+
+
     // Debugging
     void on_actionNext_triggered();
     void on_actionBack_triggered();
 
 
     void on_button_deleteDatabase_clicked();
+
 
 
 private:

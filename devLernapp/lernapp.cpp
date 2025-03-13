@@ -15,32 +15,20 @@ Lernapp::Lernapp(QWidget *parent)
     ui->button_home->hide();
 
 
-    connect(ui->treeView4_1, &QTreeView::clicked, this, &::Lernapp::treeView4ItemClicked);
-    connect(ui->treeView5_1, &QTreeView::clicked, this, &::Lernapp::treeView5ItemClicked);
+    connect(ui->treeView4_1, &QTreeView::clicked, this, &Lernapp::treeView4ItemClicked);
+    connect(ui->treeView5_1, &QTreeView::clicked, this, &Lernapp::treeView5ItemClicked);
+    connect(ui->treeView5_1, &QTreeView::doubleClicked, this, &Lernapp::treeView5ItemdoubleClicked);
     connect(ui->treeWidget, &QTreeWidget::itemClicked, this, &Lernapp::itemClickedTreeView);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &Lernapp::lastSelectedTab);
+    connect(ui->tabWidget_2, &QTabWidget::currentChanged, this, &Lernapp::lastTabWidget2Clicked);
+    connect(ui->lineEdit2_1, &QLineEdit::editingFinished, this, &Lernapp::frageInputFinished);
+    connect(ui->checkBox_antwort1, &QCheckBox::checkStateChanged, this, &Lernapp::checkboxStateChanged);
+    connect(ui->checkBox_antwort2, &QCheckBox::checkStateChanged, this, &Lernapp::checkboxStateChanged);
+    connect(ui->checkBox_antwort3, &QCheckBox::checkStateChanged, this, &Lernapp::checkboxStateChanged);
 
     setupDir();
     setupDatabaseDir();
     database = QSqlDatabase::addDatabase("QSQLITE");
-
-    // QSqlQuery query(database);
-    // query.prepare("CREATE TABLE IF NOT EXISTS Fragen ("
-    //               "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-    //               "frage_text TEXT UNIQUE NOT NULL,"
-    //               "ist_wahr BOOLEAN NOT NULL DEFAULT 0,"
-    //               "erstellt_von TEXT,"
-    //               "erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-    //               ");");
-    // if(!query.exec())
-    //     error_query(query.lastError());
-
-    // query.prepare("INSERT OR IGNORE INTO Fragen ("
-    //               "frage_text, ist_wahr, erstellt_von)"
-    //               "VALUES ('Ist die Erde Rund?', '1', 'Roman'"
-    //               ");");
-    // if(!query.exec())
-    //     error_query(query.lastError());
 }
 
 Lernapp::~Lernapp()
@@ -48,7 +36,7 @@ Lernapp::~Lernapp()
     delete ui;
 }
 
-//Seite 1
+//Startseite
 
 void Lernapp::on_button_editorStart_clicked() // Editor starten
 {
@@ -70,9 +58,143 @@ void Lernapp::on_button_editorStart_clicked() // Editor starten
     ui->tabWidget->setCurrentIndex(4);
 }
 
-//Seite 2
+void Lernapp::on_button2_3_clicked() // Speichern
+{
+    frageText = ui->textEdit2_1->toPlainText();
+    erstelltVonText = ui->lineEdit2_1->text();
 
-void Lernapp::on_button_home_clicked()
+    /*istWahrText
+     *
+     * istWahrMitText
+     * istFalschMitText
+     * istFalsch2MitText
+     *
+     * antwortMitEingabeString
+     * */
+
+
+    if(frageText == "") {
+        // QMessageBox::warning(this,"Keine Frage gefunden!","Bitte fügen Sie eine Fragen hinzu \nbevor Sie auf Speicher klicken.");
+        ui->label_saveNotification->setText("Keine Frage gefunden!\nBitte fügen Sie eine Fragen hinzu \nbevor Sie auf 'Speichern' klicken.");
+    } else if(frageTextKontrolle == frageText) {
+        // QMessageBox::warning(this,"Gleiche Frage","Diese Frage existiert schon.\nBitte ändern Sie die Frage.");
+        ui->label_saveNotification->setText("Gleiche Frage.\nDiese Frage existiert schon.\nBitte ändern Sie die Frage.");
+    } else {
+        switch (statusOption.toInt()) {
+        case 1:
+            qDebug() << statusOption;
+            istWahrMitText = "";
+            istFalschMitText = "";
+            istFalsch2MitText = "";
+            antwortMitEingabeString = "";
+            if(ui->radioButton2_1->isChecked() == false && ui->radioButton2_2->isChecked() == false) {
+                ui->label_saveNotification->setText("Bitte wählen Sie ein Wert (Richtig oder Flasch) aus.");
+            } else if(ui->radioButton2_1->isChecked()) {
+                istWahrText = "richtig";
+                insertIntoTableDatabase();
+                ui->label_saveNotification->clear();
+            } else if(ui->radioButton2_2->isChecked()) {
+                istWahrText = "falsch";
+                insertIntoTableDatabase();
+                ui->label_saveNotification->clear();
+            }
+            break;
+        case 2:
+            qDebug() << statusOption;
+            istWahrText = "";
+            antwortMitEingabeString = "";
+
+            if(checkboxCounter <= 1) {
+                ui->label_saveNotification->setText("Es müssen mindestends 2 Antworten geben.");
+            } else if(checkboxCounter >= 2) {
+                ui->label_saveNotification->clear();
+
+                if(ui->radioButton2_3->isChecked()) {
+                    if(ui->lineEdit_2->text() == "") {
+                        ui->label_saveNotification->setText("Bitte fügen Sie für 1. Antwort ein Text hinzu.");
+                    } else if(ui->radioButton2_5->isChecked() || ui->radioButton2_7->isChecked() || (ui->radioButton2_5->isChecked() && ui->radioButton2_7->isChecked())) {
+                        ui->label_saveNotification->setText("Es kann nur eine richtige Antwort geben.");
+                    } else {
+                        istWahrMitText = ui->lineEdit_2->text();
+                        istFalschMitText = ui->lineEdit->text();
+                        istFalsch2MitText = ui->lineEdit_3->text();
+                        insertIntoTableDatabase();
+                        ui->label_saveNotification->clear();
+                    }
+                } else if (ui->radioButton2_5->isChecked()){
+                    if(ui->lineEdit->text() == "") {
+                        ui->label_saveNotification->setText("Bitte fügen Sie für 1. Antwort ein Text hinzu.");
+                    } else if(ui->radioButton2_3->isChecked() || ui->radioButton2_7->isChecked() || (ui->radioButton2_3->isChecked() && ui->radioButton2_7->isChecked())) {
+                        ui->label_saveNotification->setText("Es kann nur eine richtige Antwort geben.");
+                    } else {
+                        istWahrMitText = ui->lineEdit->text();
+                        istFalschMitText = ui->lineEdit_2->text();
+                        istFalsch2MitText = ui->lineEdit_3->text();
+                        insertIntoTableDatabase();
+                        ui->label_saveNotification->clear();
+                    }
+                } else if(ui->radioButton2_7->isChecked()) {
+                    if(ui->lineEdit_3->text() == "") {
+                        ui->label_saveNotification->setText("Bitte fügen Sie für 1. Antwort ein Text hinzu.");
+                    } else if(ui->radioButton2_5->isChecked() || ui->radioButton2_2->isChecked() || (ui->radioButton2_5->isChecked() && ui->radioButton2_2->isChecked())) {
+                        ui->label_saveNotification->setText("Es kann nur eine richtige Antwort geben.");
+                    } else {
+                        istWahrMitText = ui->lineEdit_3->text();
+                        istFalschMitText = ui->lineEdit_2->text();
+                        istFalsch2MitText = ui->lineEdit->text();
+                        insertIntoTableDatabase();
+                        ui->label_saveNotification->clear();
+                    }
+                } else {
+                    ui->label_saveNotification->setText("Bitte wählen Sie eine Antwort als richtig aus.");
+                }
+            }
+
+
+
+
+            break;
+        case 3:
+            qDebug() << statusOption;
+            istWahrMitText = "";
+            istFalschMitText = "";
+            istFalsch2MitText = "";
+            istWahrText = "";
+
+            if(ui->lineEdit_4->text() == "") {
+                ui->label_saveNotification->setText("Keine Wort/Begriff gefunden!\nBitte fügen Sie eine Wort/Begriff hinzu \nbevor Sie auf 'Speichern' klicken.");
+            } else if(ui->lineEdit_4->text() != "") {
+                antwortMitEingabeString = ui->lineEdit_4->text();
+                insertIntoTableDatabase();
+                ui->label_saveNotification->clear();
+            }
+            break;
+        default:
+
+            break;
+        }
+    }
+
+}
+//Seite - Editor
+
+// void Lernapp::insertIntoTableDatabase() // SQL-Datenbank - Insert
+// {
+//     QSqlQuery query(database);
+//     query.prepare("INSERT OR IGNORE INTO Fragen ("
+//                   "frage_text, ist_wahr, ist_wahr_mit_text, ist_falsch_mit_text, ist_falsch2_mit_text, antwort_mit_eingabe, status, erstellt_von)"
+//                   "VALUES ('" +
+//                   frageText + "', '" + istWahrText + "', '" +
+//                   istWahrMitText + "', '" + istFalschMitText + "', '" + istFalsch2MitText + "', '" +
+//                   antwortMitEingabeString + "', '" +
+//                   statusOption + "', '" + erstelltVonText +
+//                   "');");
+//     if(!query.exec())
+//         error_query(query.lastError());
+//     listDatabaseTableView(ui->tableView2_1);
+// }
+
+void Lernapp::on_button_home_clicked() // Button - Startseite
 {
     if(ui->tabWidget->currentIndex() == 0) {
         ui->button_home->hide();
@@ -82,56 +204,71 @@ void Lernapp::on_button_home_clicked()
         ui->tabWidget->setCurrentIndex(0);
     }
 }
-void Lernapp::on_button2_3_clicked() // Frage speichern
+
+
+
+void Lernapp::checkboxStateChanged(Qt::CheckState state) // Checkboxes Clicked
 {
-    frageText = ui->textEdit2_1->toPlainText();
-    erstelltVonText = ui->lineEdit2_1->displayText();
-
-    if(ui->textEdit2_1->toPlainText() == "")
-    {
-        QMessageBox::warning(this,"Kein Text","Bitte geben Sie eine Frage ein.");
-    }
-    else if(frageTextKontrolle == frageText)
-    {
-        QMessageBox::warning(this,"Gleiche Frage","Diese Frage existiert schon.\nBitte aendern Sie die Frage.");
-    }
-    else if(ui->radioButton2_1->isChecked())
-    {
-        istWahrText = "1";
-    }
-    else if(ui->radioButton2_2->isChecked())
-    {
-        istWahrText = "0";
-    }
-    else
-    {
-        QMessageBox::warning(this,"Kein Wahrheitswert ausgeweahlt", "Bitte 'Wahr' oder 'Falsch' auswaehlen.");
+    if(ui->checkBox_antwort1->isChecked()) { //Checkbox 1
+        ui->radioButton2_3->setDisabled(false);
+        ui->radioButton2_4->setDisabled(false);
+        ui->radioButton2_3->setAutoExclusive(true);
+        ui->radioButton2_4->setAutoExclusive(true);
+        ui->lineEdit_2->setDisabled(false);
+        ui->radioButton2_4->setChecked(1);
+    } else {
+        ui->radioButton2_3->setAutoExclusive(false);
+        ui->radioButton2_4->setAutoExclusive(false);
+        ui->radioButton2_3->setChecked(0);
+        ui->radioButton2_4->setChecked(0);
+        ui->radioButton2_3->setDisabled(true);
+        ui->radioButton2_4->setDisabled(true);
+        ui->lineEdit_2->setText("");
+        ui->lineEdit_2->setDisabled(true);
     }
 
-
-    if(ui->textEdit2_1->toPlainText() == "")
-    {
-
+    if(ui->checkBox_antwort2->isChecked()) { //Checkbox 2
+        ui->radioButton2_5->setDisabled(false);
+        ui->radioButton2_6->setDisabled(false);
+        ui->radioButton2_5->setAutoExclusive(true);
+        ui->radioButton2_6->setAutoExclusive(true);
+        ui->lineEdit->setDisabled(false);
+        ui->radioButton2_6->setChecked(1);
+    } else {
+        ui->radioButton2_5->setAutoExclusive(false);
+        ui->radioButton2_6->setAutoExclusive(false);
+        ui->radioButton2_5->setChecked(0);
+        ui->radioButton2_6->setChecked(0);
+        ui->radioButton2_5->setDisabled(true);
+        ui->radioButton2_6->setDisabled(true);
+        ui->lineEdit->setText("");
+        ui->lineEdit->setDisabled(true);
     }
-    else if((!ui->radioButton2_1->isChecked() && !ui->radioButton2_2->isChecked()))
-    {
 
+    if(ui->checkBox_antwort3->isChecked()) { //Checkbox 3
+        ui->radioButton2_7->setDisabled(false);
+        ui->radioButton2_8->setDisabled(false);
+        ui->radioButton2_7->setAutoExclusive(true);
+        ui->radioButton2_8->setAutoExclusive(true);
+        ui->lineEdit_3->setDisabled(false);
+        ui->radioButton2_8->setChecked(1);
+    } else {
+        ui->radioButton2_7->setAutoExclusive(false);
+        ui->radioButton2_8->setAutoExclusive(false);
+        ui->radioButton2_7->setChecked(0);
+        ui->radioButton2_8->setChecked(0);
+        ui->radioButton2_7->setDisabled(true);
+        ui->radioButton2_8->setDisabled(true);
+        ui->lineEdit_3->setText("");
+        ui->lineEdit_3->setDisabled(true);
     }
-    else if(frageTextKontrolle == frageText)
-    {
 
-    }
-    else
-    {
-        QSqlQuery query(database);
-        query.prepare("INSERT OR IGNORE INTO Fragen ("
-                      "frage_text, ist_wahr, erstellt_von)"
-                      "VALUES ('" +
-                      frageText + "', '" + istWahrText + "', '" + erstelltVonText +
-                      "');");
-        if(!query.exec())
-            error_query(query.lastError());
-        listDatabaseTableView(ui->tableView2_1);
+    if(state == 2) {
+        checkboxCounter++;
+        qDebug() << checkboxCounter;
+    } else if(state == 0){
+        checkboxCounter--;
+        qDebug() << checkboxCounter;
     }
 }
 
@@ -152,6 +289,8 @@ void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
             ui->button5_2->setDisabled(1);
             ui->lineEdit2_3->setDisabled(1);
             ui->button2_4->setDisabled(1);
+            ui->tabWidget->setTabEnabled(1, false);
+            ui->tabWidget->setTabEnabled(2, false);
             listDatabaseTreeView(ui->treeView5_1);
             selectedItemLocal.clear();
         }
@@ -165,8 +304,8 @@ void Lernapp::on_button_createNewDatabase_clicked() //Neue Datenbank erstellen
 {
     QString createdDatabaseText = ui->lineEdit_createNewDatabase->text();
     selectDatabase(createdDatabaseText);
-    ui->lineEdit_createNewDatabase->clear();
     createdDatabaseText.clear();
+    ui->lineEdit_createNewDatabase->clear();
 }
 
 void Lernapp::on_button_deleteDatabase_clicked() // Lokale Datenbank löschen
@@ -364,14 +503,15 @@ void Lernapp::on_button4_7_clicked() //Server-Datei löschen
     refreshServer();
 }
 
-void Lernapp::on_button5_2_clicked()
+void Lernapp::on_button5_2_clicked() // Datenbank öffnen
 {
-    QString buffer = selectedItemLocal; // Lokale Datenbank auswählen
+    QString buffer = selectedItemLocal;
     if(selectedItemLocal != "") {
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this, "Datenbank auswählen", tr("Möchten Sie die Datenbank: %1\nals aktive Datenbank auswählen?").arg(selectedItemLocal), QMessageBox::Yes | QMessageBox::No);
         if(reply == QMessageBox::Yes) {
             ui->label2_1->setText(tr("Aktive Datenbank : %1").arg(selectedItemLocal));
+            ui->textEdit2_1->clear();
             selectDatabase(selectedItemLocal);
             activeDatabase = selectedItemLocal;
             if(database.isValid()) {
@@ -398,18 +538,60 @@ void Lernapp::on_button5_2_clicked()
     }
 }
 
-//Lernen
-//Seite 6
+void Lernapp::treeView5ItemdoubleClicked(const QModelIndex &index) //Datenbank öffnen (Double Click)
+{
+    selectedItemLocal = index.data(Qt::DisplayRole).toString();
+    QString buffer = selectedItemLocal;
+    if(selectedItemLocal != "") {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Datenbank auswählen", tr("Möchten Sie die Datenbank: %1\nals aktive Datenbank auswählen?").arg(selectedItemLocal), QMessageBox::Yes | QMessageBox::No);
+        if(reply == QMessageBox::Yes) {
+            ui->label2_1->setText(tr("Aktive Datenbank : %1").arg(selectedItemLocal));
+            ui->textEdit2_1->clear();
+            selectDatabase(selectedItemLocal);
+            activeDatabase = selectedItemLocal;
+            if(database.isValid()) {
+                isDatabaseActive();
+                if(lastIndex != 1 ) {
+                    ui->tabWidget->setCurrentIndex(1);
+                } else {
+                    ui->tabWidget->setCurrentIndex(lastIndex);
+                }
+            } else {
+                ui->tabWidget->setCurrentIndex(lastIndex);
+                qDebug() << "Database not valid";
+            }
+        } else {
+            selectedItemLocal = buffer;
+            ui->button5_2->setDisabled(1);
+            ui->lineEdit2_3->setDisabled(1);
+            ui->button2_4->setDisabled(1);
+            selectedItemLocal.clear();
+            listDatabaseTreeView(ui->treeView5_1);
+        }
+    } else {
+        QMessageBox::warning(this, "Fehler", "Keine Datenbank ausgewählt.\nKlicken Sie eine Datenbank aus, bevor Sie auf auswählen klicken!");
+    }
+}
 
+void Lernapp::lastTabWidget2Clicked(int index) // TabWidget2 clicked
+{
+    switch (index) {
+    case 0:
+        statusOption = "1";
+        break;
+    case 1:
+        statusOption = "2";
+        break;
+    case 2:
+        statusOption = "3";
+        break;
+    default:
+        break;
+    }
+}
 
-
-//Seite 7
-
-
-
-//Seite 8
-
-
+//Seite - Lernen
 
 
 // Debugging
@@ -439,6 +621,8 @@ void Lernapp::error_query(QSqlError error)
 
 }
 
+
+
 //Funktionen
 void Lernapp::listDatabaseTableView(QTableView* tableView) //TableView mit Inhalt befüllen
 {
@@ -450,11 +634,17 @@ void Lernapp::listDatabaseTableView(QTableView* tableView) //TableView mit Inhal
     model->select();
     model->setHeaderData(1, Qt::Horizontal, tr("Frage"));
     model->setHeaderData(2, Qt::Horizontal, tr("Wahr/Falsch"));
-    model->setHeaderData(3, Qt::Horizontal, tr("Erstellt von"));
-    model->setHeaderData(4, Qt::Horizontal, tr("Erstellt am"));
+    model->setHeaderData(3, Qt::Horizontal, tr("Antworten(1-3) - Wahr"));
+    model->setHeaderData(4, Qt::Horizontal, tr("Antworten(1-3) - Falsch"));
+    model->setHeaderData(5, Qt::Horizontal, tr("Antworten(1-3) - Falsch 2"));
+    model->setHeaderData(6, Qt::Horizontal, tr("Ein Wort"));
+    model->setHeaderData(7, Qt::Horizontal, tr("Status"));
+    model->setHeaderData(8, Qt::Horizontal, tr("Erstellt von"));
+    model->setHeaderData(9, Qt::Horizontal, tr("Erstellt am"));
 
-    tableView->setModel(model); //Erstellen
+    tableView->setModel(model);
     tableView->hideColumn(0);
+    tableView->hideColumn(10);
     tableView->show();
 }
 
@@ -474,7 +664,7 @@ QStringList Lernapp::parseFTPList(const QString &response) { //Output-Datei filt
     return fileList;
 }
 
-void Lernapp::setupDir() {
+void Lernapp::setupDir() { //Erstellt lokales Verzeichnis
 
     QString pathDatenbank;
     pathDatenbank = pathSystem + "/data_Lernapp";
@@ -488,7 +678,7 @@ void Lernapp::setupDir() {
     }
 }
 
-void Lernapp::setupDatabaseDir()
+void Lernapp::setupDatabaseDir() //Erstellte lokale Ordner für die Datenbank
 {
     QString pathDatenbank;
     pathDatenbank = pathSystem + "/data_Lernapp/datenbank_Lernapp";
@@ -503,7 +693,7 @@ void Lernapp::setupDatabaseDir()
     }
 }
 
-void Lernapp::setupDownloadDir()
+void Lernapp::setupDownloadDir() // Not used anymore
 {
     QString pathDatenbank;
     pathDatenbank = pathSystem + "/data_Lernapp/download_Lernapp";
@@ -528,7 +718,7 @@ void Lernapp::listDataTreeRoot()
     ui->treeView4_1->setRootIndex(model->index(pathLocaleFiles));
 }
 
-void Lernapp::listDatabaseTreeView(QTreeView* view)
+void Lernapp::listDatabaseTreeView(QTreeView* view) //QTreeView vom lokalen Verzeichnis mit Datein vom der Datenbank anzeigen
 {
     QFileSystemModel *model = new QFileSystemModel;
     QString pathLocaleFiles = pathSystem + "/data_Lernapp/datenbank_Lernapp";
@@ -549,7 +739,6 @@ void Lernapp::treeView4ItemClicked(const QModelIndex &index)
 void Lernapp::treeView5ItemClicked(const QModelIndex &index)
 {
     selectedItemLocal = index.data(Qt::DisplayRole).toString();
-    selectedItemLocal = index.data(Qt::DisplayRole).toString();
 
     if(selectedItemLocal != "") {
         ui->button5_2->setDisabled(0);
@@ -561,9 +750,10 @@ void Lernapp::treeView5ItemClicked(const QModelIndex &index)
         ui->button2_4->setDisabled(1);
         listDatabaseTreeView(ui->treeView5_1);
     }
+
 }
 
-void Lernapp::selectDatabase(QString db)
+void Lernapp::selectDatabase(QString db) // SQL-Datenbank - Create new Table
 {
     if(database.isOpen()) {
         database.close();
@@ -577,15 +767,35 @@ void Lernapp::selectDatabase(QString db)
 
     QSqlQuery query(database);
     query.prepare("CREATE TABLE IF NOT EXISTS Fragen ("
-                  "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                  "frage_text TEXT UNIQUE NOT NULL,"
-                  "ist_wahr BOOLEAN NOT NULL DEFAULT 0,"
-                  "erstellt_von TEXT,"
-                  "erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-                  ");");
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    "frage_text TEXT UNIQUE NOT NULL,"
+                    "ist_wahr TEXT NOT NULL,"
+                    "ist_wahr_mit_text TEXT NOT NULL,"
+                    "ist_falsch_mit_text TEXT NOT NULL,"
+                    "ist_falsch2_mit_text TEXT NOT NULL,"
+                    "antwort_mit_eingabe TEXT NOT NULL,"
+                    "status INTEGER CHECK (status IN (1, 2, 3)),"
+                    "erstellt_von TEXT NOT NULL,"
+                    "erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
     if(!query.exec())
         error_query(query.lastError());
 
+    listDatabaseTableView(ui->tableView2_1);
+}
+
+void Lernapp::insertIntoTableDatabase() // SQL-Datenbank - Insert
+{
+    QSqlQuery query(database);
+    query.prepare("INSERT OR IGNORE INTO Fragen ("
+                  "frage_text, ist_wahr, ist_wahr_mit_text, ist_falsch_mit_text, ist_falsch2_mit_text, antwort_mit_eingabe, status, erstellt_von)"
+                  "VALUES ('" +
+                  frageText + "', '" + istWahrText + "', '" +
+                  istWahrMitText + "', '" + istFalschMitText + "', '" + istFalsch2MitText + "', '" +
+                  antwortMitEingabeString + "', '" +
+                  statusOption + "', '" + erstelltVonText +
+                  "');");
+    if(!query.exec())
+        error_query(query.lastError());
     listDatabaseTableView(ui->tableView2_1);
 }
 
@@ -662,7 +872,7 @@ void Lernapp::lastSelectedTab(int index)
 
 }
 
-void Lernapp::refreshServer()
+void Lernapp::refreshServer() // Server-Dateien Aktualisieren
 {
     ui->treeWidget->clear();
     ui->treeWidget->setColumnCount(1);
@@ -682,13 +892,17 @@ void Lernapp::refreshServer()
     }
 }
 
-
 void Lernapp::itemClickedTreeView(QTreeWidgetItem *item, int index)
 {
     selectedItemLocal = item->text(index);
     selectedItemServer = item->text(index);
     qDebug() << selectedItemServer;
     qDebug() << selectedItemLocal;
+}
+
+void Lernapp::frageInputFinished() // Frage Line Edit Finished
+{
+    // frageTextKontrolle = ui->textEdit2_1->toPlainText();
 }
 
 //cUrl Funktionen
