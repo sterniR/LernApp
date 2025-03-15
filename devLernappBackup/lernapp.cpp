@@ -596,18 +596,18 @@ void Lernapp::lastTabWidget2Clicked(int index) // TabWidget2 clicked
 
 // Debugging
 
-// void Lernapp::on_actionNext_triggered()
-// {
-//     ui->tabWidget->setCurrentIndex((ui->tabWidget->currentIndex()+1));
-//     QString site = "Seite: " + QString::number(ui->tabWidget->currentIndex());
-//     ui->menuSeite->setTitle(site);
-// }
-// void Lernapp::on_actionBack_triggered()
-// {
-//     ui->tabWidget->setCurrentIndex((ui->tabWidget->currentIndex()-1));
-//     QString site = "Seite: " + QString::number(ui->tabWidget->currentIndex());
-//     ui->menuSeite->setTitle(site);
-// }
+void Lernapp::on_actionNext_triggered()
+{
+    ui->tabWidget->setCurrentIndex((ui->tabWidget->currentIndex()+1));
+    QString site = "Seite: " + QString::number(ui->tabWidget->currentIndex());
+    ui->menuSeite->setTitle(site);
+}
+void Lernapp::on_actionBack_triggered()
+{
+    ui->tabWidget->setCurrentIndex((ui->tabWidget->currentIndex()-1));
+    QString site = "Seite: " + QString::number(ui->tabWidget->currentIndex());
+    ui->menuSeite->setTitle(site);
+}
 
 //Database debugging
 

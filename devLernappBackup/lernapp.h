@@ -99,7 +99,6 @@ private slots:
     void on_button2_4_clicked();
     void on_button_createNewDatabase_clicked();
     void checkboxStateChanged(Qt::CheckState state);
-    void on_button_deleteDatabase_clicked();
 
     void on_button4_4_clicked();
     void on_button4_5_clicked();
@@ -111,10 +110,11 @@ private slots:
 
 
     // Debugging
-    // void on_actionNext_triggered();
-    // void on_actionBack_triggered();
+    void on_actionNext_triggered();
+    void on_actionBack_triggered();
 
 
+    void on_button_deleteDatabase_clicked();
 
 
 
