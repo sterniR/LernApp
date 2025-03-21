@@ -1,1 +1,0 @@
-/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/appLernappQuick_autogen/include/../EWIEGA46WW/moc_networtbackend.cpp.json

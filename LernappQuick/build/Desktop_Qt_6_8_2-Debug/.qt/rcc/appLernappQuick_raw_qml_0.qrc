@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/qt/qml/LernappQuick/">
-    <file alias="Main.qml">/home/roman/dev_code/LernApp/LernappQuick/Main.qml</file>
-  </qresource>
-</RCC>
-
