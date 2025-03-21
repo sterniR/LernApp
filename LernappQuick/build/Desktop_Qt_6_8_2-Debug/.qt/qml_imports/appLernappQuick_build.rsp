@@ -1,0 +1,14 @@
+-rootPath
+/home/roman/dev_code/LernApp/LernappQuick
+-cmake-output
+-output-file
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/.qt/qml_imports/appLernappQuick_build.cmake
+-importPath
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/LernappQuick
+-importPath
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug
+-importPath
+/home/roman/Qt/6.8.2/gcc_64/qml
+-qrcFiles
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/.qt/rcc/qmake_LernappQuick.qrc
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/.qt/rcc/appLernappQuick_raw_qml_0.qrc

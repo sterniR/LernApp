@@ -1,0 +1,3 @@
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/CMakeFiles/curl-populate.dir
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/CMakeFiles/edit_cache.dir
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/CMakeFiles/rebuild_cache.dir

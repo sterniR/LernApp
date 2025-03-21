@@ -1,0 +1,14 @@
+# Target labels
+ curl-populate
+# Source files and their labels
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/CMakeFiles/curl-populate
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/CMakeFiles/curl-populate.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/CMakeFiles/curl-populate-complete.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/curl-populate-prefix/src/curl-populate-stamp/curl-populate-build.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/curl-populate-prefix/src/curl-populate-stamp/curl-populate-configure.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/curl-populate-prefix/src/curl-populate-stamp/curl-populate-download.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/curl-populate-prefix/src/curl-populate-stamp/curl-populate-install.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/curl-populate-prefix/src/curl-populate-stamp/curl-populate-mkdir.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/curl-populate-prefix/src/curl-populate-stamp/curl-populate-patch.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/curl-populate-prefix/src/curl-populate-stamp/curl-populate-test.rule
+/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/_deps/curl-subbuild/curl-populate-prefix/src/curl-populate-stamp/curl-populate-update.rule

@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/LernappQuick">
+    <file alias="qmldir">/home/roman/dev_code/LernApp/LernappQuick/build/Desktop_Qt_6_8_2-Debug/LernappQuick/qmldir</file>
+  </qresource>
+</RCC>
+

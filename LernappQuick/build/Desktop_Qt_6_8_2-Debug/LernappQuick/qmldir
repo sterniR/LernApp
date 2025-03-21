@@ -1,0 +1,5 @@
+module LernappQuick
+typeinfo appLernappQuick.qmltypes
+prefer :/qt/qml/LernappQuick/
+Main 1.0 Main.qml
+
