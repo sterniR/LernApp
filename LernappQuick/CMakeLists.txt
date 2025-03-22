@@ -42,7 +42,7 @@ qt_add_qml_module(appLernappQuick
         SOURCES networtbackend.h networtbackend.cpp
 )
 
-set_source_files_properties(Main.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+# set_source_files_properties(Main.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

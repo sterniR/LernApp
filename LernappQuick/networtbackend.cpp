@@ -7,6 +7,8 @@ NetwortBackend::NetwortBackend(QObject *parent)
     : QObject{parent}
 {}
 
+
+
 QStringList NetwortBackend::getFTPFileList(const QString& ftpUrl, const QString& username, const QString& password) {
     QStringList fileList;
     CURL* curl;
@@ -79,7 +81,16 @@ void NetwortBackend::refreshServer() // Server-Dateien Aktualisieren/Fetchen
     emit dataFileFromFtpServerChanged();
 }
 
-QStringList NetwortBackend::dataFileFromFtpServer() const
+void NetwortBackend::ThemeDatabaseSelected(const QString &db)
+{
+    selectedDatabase = db;
+    qDebug() << selectedDatabase << " db";
+    m_nameDatabaseSelected = db;
+    qDebug() << selectedDatabase << " qml file";
+    emit nameDatabaseSelectedChanged();
+}
+
+QStringList NetwortBackend::dataFileFromFtpServer() const //dataFileFromFtpServer
 {
     return m_dataFileFromFtpServer;
 }
@@ -92,10 +103,15 @@ void NetwortBackend::setDataFileFromFtpServer(const QStringList &newDataFileFrom
     emit dataFileFromFtpServerChanged();
 }
 
-void NetwortBackend::ThemeDatabaseSelected(const QString &db)
+QString NetwortBackend::nameDatabaseSelected() const //nameDatabaseSelected
 {
-    selectedDatabase = db;
-    qDebug() << selectedDatabase;
+    return m_nameDatabaseSelected;
+}
 
-
+void NetwortBackend::setNameDatabaseSelected(const QString &newNameDatabaseSelected)
+{
+    if (m_nameDatabaseSelected == newNameDatabaseSelected)
+        return;
+    m_nameDatabaseSelected = newNameDatabaseSelected;
+    emit nameDatabaseSelectedChanged();
 }
