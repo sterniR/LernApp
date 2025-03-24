@@ -18,6 +18,7 @@
 class Database : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(const QStringList& listLocalDir READ listLocalDir WRITE setListLocalDir NOTIFY listLocalDirChanged FINAL)
     QML_ELEMENT
 public:
     explicit Database(QObject *parent = nullptr);
@@ -27,9 +28,15 @@ public:
     Q_INVOKABLE QString setupDatabaseDir();
     Q_INVOKABLE QStringList listLocalDatabase();
 
+    const QStringList &listLocalDir() const;
+    void setListLocalDir(const QStringList &newListLocalDir);
+
 public slots:
 
 signals:
+    void listLocalDirChanged();
+private:
+    QStringList m_listLocalDir;
 };
 
 #endif // DATABASE_H

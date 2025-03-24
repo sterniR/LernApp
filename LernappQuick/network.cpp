@@ -1,7 +1,10 @@
 #include "network.h"
 #include "curl/curl.h"
 #include <qregularexpression.h>
+
 #include <QDebug>
+#include <fstream>
+#include <iostream>
 
 Network::Network(QObject *parent)
     : QObject{parent}
@@ -65,6 +68,12 @@ QStringList Network::parseFTPList(const QString &response) { //Output-Datei filt
     return fileList;
 }
 
+size_t Network::WriteCallBack(void *contents, size_t size, size_t nmemb, void *userp) {
+    std::ofstream* file = static_cast<std::ofstream*>(userp);
+    file->write(static_cast<char*>(contents), size * nmemb);
+    return size * nmemb;
+}
+
 void Network::refreshServer() // Server-Dateien Aktualisieren/Fetchen
 {
     // FTP-Dateien abrufen
@@ -90,7 +99,52 @@ void Network::ThemeDatabaseSelected(const QString &db)
     emit nameDatabaseSelectedChanged();
 }
 
+void Network::downloadFile() //Download
+{
+    CURL *curl;
+    CURLcode res;
 
+    QString ftpUrl = "ftp://138.199.195.70:21/files/";
+
+    if(selectedDatabase != "") {
+        QString downloadDir = pathSystem + "/data_Lernapp/datenbank_Lernapp";
+        ftpUrl += selectedDatabase;
+
+        // Dateinamen aus der URL extrahieren
+        QString fileName = QUrl(ftpUrl).fileName();
+        QString filePath = downloadDir + "/" + fileName;
+        std::string filePathStd = filePath.toStdString();
+
+        std::ofstream file(filePathStd, std::ios::binary);
+        if (!file) {
+            qDebug() << "Fehler: Datei konnte nicht erstellt werden!";
+        } else {
+            curl_global_init(CURL_GLOBAL_DEFAULT);
+            curl = curl_easy_init();
+            if (curl) {
+                curl_easy_setopt(curl, CURLOPT_URL, ftpUrl.toStdString().c_str());
+                curl_easy_setopt(curl, CURLOPT_USERPWD, "bob:Kartoffel123?!");
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Network::WriteCallBack);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &file);
+                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+                res = curl_easy_perform(curl);
+                curl_easy_cleanup(curl);
+                if (res != CURLE_OK) {
+                    qDebug() << "curl error:" << curl_easy_strerror(res);
+                }
+                else {
+                    qDebug() << "Download erfolgreich! Datei gespeichert unter:" << filePath;
+                }
+
+            }
+        }
+    } else {
+        qDebug() << "Datei nicht gefunden";
+    }
+    curl_global_cleanup();
+    // refreshServer();
+}
 
 QStringList Network::dataFileFromFtpServer() const //dataFileFromFtpServer
 {

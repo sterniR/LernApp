@@ -30,7 +30,7 @@ QStringList Database::listLocalDatabase() //Lokalen Verzeichnis mit Datein vom d
 
     if (!directory.exists()) {
         qDebug() << "Ordner existiert nicht:" << pathLocaleFiles;
-        return fileList;
+        // return fileList;
     } else {
         QFileSystemModel model;
         model.setRootPath(pathLocaleFiles);
@@ -44,6 +44,22 @@ QStringList Database::listLocalDatabase() //Lokalen Verzeichnis mit Datein vom d
             fileList.append(fileName);
         }
         qDebug() << fileList;
+        m_listLocalDir.clear();
+        m_listLocalDir = fileList;
+        emit listLocalDirChanged();
         return fileList;
     }
+}
+
+const QStringList &Database::listLocalDir() const
+{
+    return m_listLocalDir;
+}
+
+void Database::setListLocalDir(const QStringList &newListLocalDir)
+{
+    if (m_listLocalDir == newListLocalDir)
+        return;
+    m_listLocalDir = newListLocalDir;
+    emit listLocalDirChanged();
 }

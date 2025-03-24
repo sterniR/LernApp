@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QtQml/qqmlregistration.h>
+#include <QStandardPaths>
 
 class Network : public QObject
 {
@@ -15,8 +16,9 @@ public:
     explicit Network(QObject *parent = nullptr);
 
     Q_INVOKABLE void ThemeDatabaseSelected(const QString& db);
+    Q_INVOKABLE void downloadFile();
     QString selectedDatabase;
-
+    QString const pathSystem = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
     QStringList dataFileFromFtpServer() const;
     void setDataFileFromFtpServer(const QStringList &newDataFileFromFtpServer);
 
@@ -27,6 +29,7 @@ public slots:
     static QStringList getFTPFileList(const QString& ftpUrl, const QString& username, const QString& password);
     static size_t getDirFtp(void* contents, size_t size, size_t nmemb, void* userp);
     static QStringList parseFTPList(const QString &response);
+    static size_t WriteCallBack(void *contents, size_t size, size_t nmemb, void *userp);
     void refreshServer();
 
 signals:

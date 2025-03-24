@@ -15,7 +15,7 @@ Window {
     minimumWidth: 420
     minimumHeight: 680
     visible: true
-    color: "#39832a"
+    color: "white"
     title: qsTr("Hello World")
 
     Network{
@@ -66,7 +66,7 @@ Window {
         Layout.fillHeight: true
         Layout.fillWidth: true
         visible: false
-        spacing: 10
+        spacing: 5
 
         Label {
             id: textFileSelected
@@ -80,19 +80,18 @@ Window {
 
         ListView {
             id: listView_Server
-            Layout.preferredHeight: 250
+            Layout.preferredHeight: 150
             Layout.fillWidth: true
             Layout.rightMargin: 50
             Layout.leftMargin: 50
-
+            // Layout.bottomMargin: 25
+            // Layout.topMargin: 25
             model: backend_Network.dataFileFromFtpServer
-
 
             delegate: ItemDelegate {
                 id: itemListView_Server
-                required property string modelData
                 width: ListView.view.width
-
+                required property string modelData
                 Rectangle {
                     anchors.fill: parent
                     color: "#2d731e"
@@ -119,21 +118,41 @@ Window {
                         easing.type: Easing.InOutCubic
                         from: 0
                         to: 1
-                    }
                 }
+            }
         }
+        RowLayout {
+            Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
+            // Layout.bottomMargin: 10
 
+            Button {
+                id: button_downloadFile
+                text: qsTr("Datei Herunterladen")
+                onClicked: backend_Network.downloadFile()
+            }
+
+            Button {
+                id: button_refreshFileListServer
+
+                text: qsTr("Liste Aktualisieren")
+
+                onClicked: backend_Network.refreshServer()
+            }
+        }
         ListView {
             id: listView_LocalDir
 
-            Layout.preferredHeight: 250
+            Layout.preferredHeight: 150
             Layout.fillWidth: true
             Layout.rightMargin: 50
             Layout.leftMargin: 50
+            // Layout.bottomMargin: 25
+            // Layout.topMargin: 25
             model: backend_Database.listLocalDatabase()
+
             delegate: ItemDelegate {
                 id: itemListView_localDir
-                required property string modelData
+                required property var modelData
 
                 width: ListView.view.width
 
@@ -143,33 +162,43 @@ Window {
                     border.color: "Black"
                     border.width: 1
                     Text {
-                        text: itemListView_localDir.modelData
+                        text: backend_Database.listLocalDatabase()
                         color: "black"
                         font.pointSize: 16
                     }
                 }
             }
-
+            populate: Transition {
+                    NumberAnimation {
+                        properties: "scale"
+                        duration: 750
+                        easing.type: Easing.InOutCubic
+                        from: 0
+                        to: 1
+                }
+            }
         }
+        RowLayout {
+            Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
+            Layout.bottomMargin: 10
+            Button {
+                id: button_refreshFileListLocal
+                text: qsTr("Aktualisieren")
+                onClicked: backend_Database.listLocalFile
+            }
+        }
+
 
         RowLayout {
             Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
             Layout.bottomMargin: 10
             Button {
-                id: button_1_s1
-
-                text: qsTr("List Files")
-
-                onClicked: backend_Network.refreshServer() | backend_Database.listLocalDatabase()
-            }
-
-            Button {
-                id: button_next_s1
-
+                id: button_nextToView3
                 text: qsTr("Weiter")
                 onClicked: stackView_1.push(columnLayout_3)
             }
         }
+
     }
 
     ColumnLayout {
