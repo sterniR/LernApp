@@ -18,8 +18,11 @@ Window {
     color: "#39832a"
     title: qsTr("Hello World")
 
-    NetwortBackend {
-        id: backend
+    Network{
+        id: backend_Network
+    }
+    Database {
+        id: backend_Database
     }
 
     StackView {
@@ -48,7 +51,7 @@ Window {
             text: qsTr("Start")
             Layout.alignment: Qt.AlignHCenter
             onClicked: stackView_1.push(
-                           columnLayout_2) //| backend.refreshServer()
+                           columnLayout_2) | backend_Database.setupDatabaseDir()
         }
         Button {
             id: buttonHomepage_closeApp
@@ -70,21 +73,23 @@ Window {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 10
 
-            text: backend.nameDatabaseSelected
+            text: backend_Network.nameDatabaseSelected
             color: "black"
             font.pixelSize: 24
         }
 
         ListView {
-            id: listView
-            Layout.preferredHeight: 500
+            id: listView_Server
+            Layout.preferredHeight: 250
             Layout.fillWidth: true
             Layout.rightMargin: 50
             Layout.leftMargin: 50
-            model: backend.dataFileFromFtpServer
+
+            model: backend_Network.dataFileFromFtpServer
+
 
             delegate: ItemDelegate {
-                id: itemListView
+                id: itemListView_Server
                 required property string modelData
                 width: ListView.view.width
 
@@ -94,7 +99,7 @@ Window {
                     border.color: "white"
                     border.width: 1
                     Text {
-                        text: itemListView.modelData
+                        text: itemListView_Server.modelData
                         color: "#000000"
                         font.pixelSize: 16
                     }
@@ -102,8 +107,8 @@ Window {
                     MouseArea {
                         id: mouseAreaRefreshServer
                         anchors.fill: parent
-                        onClicked: backend.ThemeDatabaseSelected(
-                                       itemListView.modelData)
+                        onClicked: backend_Network.ThemeDatabaseSelected(
+                                       itemListView_Server.modelData)
                     }
                 }
             }
@@ -117,6 +122,36 @@ Window {
                     }
                 }
         }
+
+        ListView {
+            id: listView_LocalDir
+
+            Layout.preferredHeight: 250
+            Layout.fillWidth: true
+            Layout.rightMargin: 50
+            Layout.leftMargin: 50
+            model: backend_Database.listLocalDatabase()
+            delegate: ItemDelegate {
+                id: itemListView_localDir
+                required property string modelData
+
+                width: ListView.view.width
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: "yellow"
+                    border.color: "Black"
+                    border.width: 1
+                    Text {
+                        text: itemListView_localDir.modelData
+                        color: "black"
+                        font.pointSize: 16
+                    }
+                }
+            }
+
+        }
+
         RowLayout {
             Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
             Layout.bottomMargin: 10
@@ -125,7 +160,7 @@ Window {
 
                 text: qsTr("List Files")
 
-                onClicked: backend.refreshServer()
+                onClicked: backend_Network.refreshServer() | backend_Database.listLocalDatabase()
             }
 
             Button {
@@ -142,7 +177,9 @@ Window {
         Layout.fillHeight: true
         Layout.fillWidth: true
         visible: false
+
         Rectangle {
+            id: rect_3
             color: "blue"
             border.color: "black"
             border.width: 10
@@ -150,14 +187,21 @@ Window {
             Layout.fillHeight: parent
             Label {
                 anchors.centerIn: parent
-                text: backend.nameDatabaseSelected
+                text: backend_Network.nameDatabaseSelected
                 font.pointSize: 25
                 color: "yellow"
             }
+
             MouseArea {
                 anchors.fill: parent
                 onClicked: stackView_1.pop()
             }
+            Text {
+                text: backend_Database.setupDatabaseDir()
+                font.pointSize: 8
+                color: "red"
+            }
         }
+
     }
 }

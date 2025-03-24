@@ -26,7 +26,7 @@ CPMAddPackage(
         "BUILD_TESTING OFF"
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2 Sql)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -39,7 +39,8 @@ qt_add_qml_module(appLernappQuick
     VERSION 1.0
     QML_FILES
         Main.qml
-        SOURCES networtbackend.h networtbackend.cpp
+        SOURCES network.h network.cpp
+        SOURCES database.h database.cpp
 )
 
 # set_source_files_properties(Main.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
@@ -58,8 +59,9 @@ set_target_properties(appLernappQuick PROPERTIES
 
 target_link_libraries(appLernappQuick
     PRIVATE Qt6::Quick
-    libcurl
     PRIVATE Qt6::QuickControls2
+    PRIVATE Qt6::Sql
+    libcurl
 )
 
 include(GNUInstallDirs)

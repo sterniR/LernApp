@@ -1,18 +1,18 @@
-#ifndef NETWORTBACKEND_H
-#define NETWORTBACKEND_H
+#ifndef NETWORK_H
+#define NETWORK_H
 
 #include <QObject>
 #include <QQmlEngine>
 #include <QtQml/qqmlregistration.h>
 
-class NetwortBackend : public QObject
+class Network : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(const QStringList& dataFileFromFtpServer READ dataFileFromFtpServer WRITE setDataFileFromFtpServer NOTIFY dataFileFromFtpServerChanged FINAL)
     Q_PROPERTY(QString nameDatabaseSelected READ nameDatabaseSelected WRITE setNameDatabaseSelected NOTIFY nameDatabaseSelectedChanged FINAL)
     QML_ELEMENT
 public:
-    explicit NetwortBackend(QObject *parent = nullptr);
+    explicit Network(QObject *parent = nullptr);
 
     Q_INVOKABLE void ThemeDatabaseSelected(const QString& db);
     QString selectedDatabase;
@@ -38,4 +38,4 @@ private:
     QStringList m_dataFileFromFtpServer;
     QString m_nameDatabaseSelected;
 };
-#endif // NETWORTBACKEND_H
+#endif // NETWORK_H

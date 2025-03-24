@@ -1,15 +1,15 @@
-#include "networtbackend.h"
+#include "network.h"
 #include "curl/curl.h"
 #include <qregularexpression.h>
 #include <QDebug>
 
-NetwortBackend::NetwortBackend(QObject *parent)
+Network::Network(QObject *parent)
     : QObject{parent}
 {}
 
 
 
-QStringList NetwortBackend::getFTPFileList(const QString& ftpUrl, const QString& username, const QString& password) {
+QStringList Network::getFTPFileList(const QString& ftpUrl, const QString& username, const QString& password) {
     QStringList fileList;
     CURL* curl;
     CURLcode res;
@@ -23,7 +23,7 @@ QStringList NetwortBackend::getFTPFileList(const QString& ftpUrl, const QString&
         curl_easy_setopt(curl, CURLOPT_USERPWD, userPwd.toStdString().c_str());
 
         // FTP Listing abrufen
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NetwortBackend::getDirFtp);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Network::getDirFtp);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fileList);
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
@@ -39,7 +39,7 @@ QStringList NetwortBackend::getFTPFileList(const QString& ftpUrl, const QString&
     return fileList;
 }
 
-size_t NetwortBackend::getDirFtp(void *contents, size_t size, size_t nmemb, void *userp) // libcurl -
+size_t Network::getDirFtp(void *contents, size_t size, size_t nmemb, void *userp) // libcurl -
 {
     QStringList* fileList = static_cast<QStringList*>(userp);
     QString data = QString::fromUtf8(static_cast<char*>(contents), size * nmemb);
@@ -49,7 +49,7 @@ size_t NetwortBackend::getDirFtp(void *contents, size_t size, size_t nmemb, void
     return size * nmemb;
 }
 
-QStringList NetwortBackend::parseFTPList(const QString &response) { //Output-Datei filtern mit Regex
+QStringList Network::parseFTPList(const QString &response) { //Output-Datei filtern mit Regex
     QStringList fileList;
 
     // Regulärer Ausdruck für Dateinamen
@@ -65,23 +65,23 @@ QStringList NetwortBackend::parseFTPList(const QString &response) { //Output-Dat
     return fileList;
 }
 
-void NetwortBackend::refreshServer() // Server-Dateien Aktualisieren/Fetchen
+void Network::refreshServer() // Server-Dateien Aktualisieren/Fetchen
 {
     // FTP-Dateien abrufen
     QString ftpUrl = "ftp://138.199.195.70:21/files/";
     QString username = "bob";
     QString password = "Kartoffel123?!";
-    QStringList files = NetwortBackend::getFTPFileList(ftpUrl, username, password);
+    QStringList files = Network::getFTPFileList(ftpUrl, username, password);
 
     m_dataFileFromFtpServer.clear();
     for (const QString& file : files) {
         m_dataFileFromFtpServer.append(file);
-        qDebug() << m_dataFileFromFtpServer;
     }
+    qDebug() << m_dataFileFromFtpServer;
     emit dataFileFromFtpServerChanged();
 }
 
-void NetwortBackend::ThemeDatabaseSelected(const QString &db)
+void Network::ThemeDatabaseSelected(const QString &db)
 {
     selectedDatabase = db;
     qDebug() << selectedDatabase << " db";
@@ -90,12 +90,14 @@ void NetwortBackend::ThemeDatabaseSelected(const QString &db)
     emit nameDatabaseSelectedChanged();
 }
 
-QStringList NetwortBackend::dataFileFromFtpServer() const //dataFileFromFtpServer
+
+
+QStringList Network::dataFileFromFtpServer() const //dataFileFromFtpServer
 {
     return m_dataFileFromFtpServer;
 }
 
-void NetwortBackend::setDataFileFromFtpServer(const QStringList &newDataFileFromFtpServer)
+void Network::setDataFileFromFtpServer(const QStringList &newDataFileFromFtpServer)
 {
     if (m_dataFileFromFtpServer == newDataFileFromFtpServer)
         return;
@@ -103,12 +105,12 @@ void NetwortBackend::setDataFileFromFtpServer(const QStringList &newDataFileFrom
     emit dataFileFromFtpServerChanged();
 }
 
-QString NetwortBackend::nameDatabaseSelected() const //nameDatabaseSelected
+QString Network::nameDatabaseSelected() const //nameDatabaseSelected
 {
     return m_nameDatabaseSelected;
 }
 
-void NetwortBackend::setNameDatabaseSelected(const QString &newNameDatabaseSelected)
+void Network::setNameDatabaseSelected(const QString &newNameDatabaseSelected)
 {
     if (m_nameDatabaseSelected == newNameDatabaseSelected)
         return;
