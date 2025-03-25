@@ -20,30 +20,16 @@ endif()
 include(${CPM_DOWNLOAD_LOCATION})
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Sql Network)
-
-CPMAddPackage(
-    NAME mbedtls
-    GITHUB_REPOSITORY "Mbed-TLS/mbedtls"
-    GIT_TAG "v3.6.2"
-    OPTIONS
-        "ENABLE_PROGRAMS OFF"
-        "ENABLE_TESTING OFF"
-)
-
-set(MBEDTLS_INCLUDE_DIRS ${mbedtls_SOURCE_DIR}/include)
-set(MBEDTLS_LIBRARY ${mbedtls_BINARY_DIR}/library/libmbedtls.a)
-set(MBEDX509_LIBRARY ${mbedtls_BINARY_DIR}/library/libmbedx509.a)
-set(MBEDCRYPTO_LIBRARY ${mbedtls_BINARY_DIR}/library/libmbedcrypto.a)
 
 CPMAddPackage(
     NAME curl
     GITHUB_REPOSITORY "curl/curl"
     GIT_TAG "curl-7_82_0"
     OPTIONS
+        "CURL_USE_MBEDTLS OFF"
         "CMAKE_USE_LIBSSH2 OFF"
-        "CURL_USE_MBEDTLS ON"
         "BUILD_CURL_EXE OFF"
         "BUILD_SHARED_LIBS OFF"
         "BUILD_TESTING OFF"
@@ -60,13 +46,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(devLernapp
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml
-        android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
-        android/AndroidManifest.xml android/build.gradle
-        android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
-        android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
-        android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
-    )
+)
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET devLernapp APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
@@ -89,8 +69,8 @@ include_directories(${MBEDTLS_INCLUDE_DIRS})
 link_directories(${mbedtls_BINARY_DIR}/library)
 
 target_link_libraries(devLernapp PRIVATE
-    Qt${QT_VERSION_MAJOR}::Widgets
-    Qt${QT_VERSION_MAJOR}::Sql
+    Qt6::Widgets
+    Qt6::Sql
     Qt6::Network
     libcurl
 )

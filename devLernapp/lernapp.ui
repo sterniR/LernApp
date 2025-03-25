@@ -45,7 +45,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabWidgetPage1">
        <property name="enabled">
@@ -113,6 +113,18 @@
             </item>
             <item>
              <widget class="QPushButton" name="button_editorStart">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="text">
                <string>Editor</string>
               </property>
@@ -161,6 +173,12 @@
           </item>
           <item row="2" column="1">
            <widget class="QLabel" name="label1_1">
+            <property name="font">
+             <font>
+              <pointsize>26</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
             <property name="text">
              <string>Lernapp - Ausbilder</string>
             </property>
@@ -1345,34 +1363,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1000</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuMen">
-    <property name="title">
-     <string>Menü</string>
-    </property>
-    <addaction name="actionNext"/>
-    <addaction name="actionBack"/>
-   </widget>
-   <widget class="QMenu" name="menuSeite">
-    <property name="title">
-     <string>Seite : </string>
-    </property>
-   </widget>
-   <addaction name="menuMen"/>
-   <addaction name="menuSeite"/>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNext">
    <property name="enabled">
     <bool>true</bool>
