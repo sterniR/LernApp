@@ -274,6 +274,8 @@ void Lernapp::checkboxStateChanged(Qt::CheckState state) // Checkboxes Clicked
 
 void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
 {
+    // database.close() und activateDatabase.close() oder so. Problem bei windows ## FIX ME!
+
     if(selectedItemLocal != "") {
 
         QFile file;
@@ -310,6 +312,7 @@ void Lernapp::on_button_createNewDatabase_clicked() //Neue Datenbank erstellen
 
 void Lernapp::on_button_deleteDatabase_clicked() // Lokale Datenbank löschen
 {
+    // database.close() und activateDatabase.close() oder so. Problem bei windows ## FIX ME!
     QFile db;
     QMessageBox::StandardButton reply;
     if(selectedItemLocal != "") {

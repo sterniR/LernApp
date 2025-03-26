@@ -22,7 +22,7 @@ QString Database::setupDatabaseDir() //Erstellte lokale Ordner für die Datenban
     return pathDatabase;
 }
 
-QStringList Database::listLocalDatabase() //Lokalen Verzeichnis mit Datein vom der Datenbank anzeigen
+QStringList Database::showLocalDatabase() //Lokalen Verzeichnis mit Datein vom der Datenbank anzeigen
 {
     QString pathLocaleFiles = pathSystem + "/data_Lernapp/datenbank_Lernapp";
     QDir directory(pathLocaleFiles);
@@ -30,7 +30,7 @@ QStringList Database::listLocalDatabase() //Lokalen Verzeichnis mit Datein vom d
 
     if (!directory.exists()) {
         qDebug() << "Ordner existiert nicht:" << pathLocaleFiles;
-        // return fileList;
+        return fileList;
     } else {
         QFileSystemModel model;
         model.setRootPath(pathLocaleFiles);
@@ -45,10 +45,31 @@ QStringList Database::listLocalDatabase() //Lokalen Verzeichnis mit Datein vom d
         }
         qDebug() << fileList;
         m_listLocalDir.clear();
-        m_listLocalDir = fileList;
+        setListLocalDir(fileList);
         emit listLocalDirChanged();
         return fileList;
     }
+}
+
+void Database::deleteLocalFile(QString selectedLocalFileName) // Lokale Datenbank/File löschen
+{
+    QFile db;
+    if(selectedLocalFileName != "") {
+        if(QDir::setCurrent(pathSystem + "/data_Lernapp/datenbank_Lernapp")) {
+            db.setFileName(selectedLocalFileName);
+            db.remove();
+            selectedLocalFileName.clear();
+        } else {
+            qDebug() << "Datei konnte nicht gelöscht werden";
+        }
+    }
+}
+
+void Database::getFileName(const QString &fileName)
+{
+    setSelectedLocalFileName(fileName);
+    qDebug() << (m_selectedLocalFileName);
+    emit selectedLocalFileNameChanged();
 }
 
 const QStringList &Database::listLocalDir() const
@@ -62,4 +83,17 @@ void Database::setListLocalDir(const QStringList &newListLocalDir)
         return;
     m_listLocalDir = newListLocalDir;
     emit listLocalDirChanged();
+}
+
+const QString &Database::selectedLocalFileName() const
+{
+    return m_selectedLocalFileName;
+}
+
+void Database::setSelectedLocalFileName(const QString &newSelectedLocalFileName)
+{
+    if (m_selectedLocalFileName == newSelectedLocalFileName)
+        return;
+    m_selectedLocalFileName = newSelectedLocalFileName;
+    emit selectedLocalFileNameChanged();
 }
