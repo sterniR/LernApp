@@ -92,10 +92,8 @@ void Network::refreshServer() // Server-Dateien Aktualisieren/Fetchen
 
 void Network::ThemeDatabaseSelected(const QString &db)
 {
-    selectedDatabase = db;
-    qDebug() << selectedDatabase << " db";
     m_nameDatabaseSelected = db;
-    qDebug() << selectedDatabase << " qml file";
+    qDebug() << m_nameDatabaseSelected << " qml file";
     emit nameDatabaseSelectedChanged();
 }
 
@@ -106,9 +104,9 @@ void Network::downloadFile() //Download
 
     QString ftpUrl = "ftp://138.199.195.70:21/files/";
 
-    if(selectedDatabase != "") {
+    if(m_nameDatabaseSelected != "") {
         QString downloadDir = pathSystem + "/data_Lernapp/datenbank_Lernapp";
-        ftpUrl += selectedDatabase;
+        ftpUrl += m_nameDatabaseSelected;
 
         // Dateinamen aus der URL extrahieren
         QString fileName = QUrl(ftpUrl).fileName();

@@ -17,7 +17,7 @@ public:
 
     Q_INVOKABLE void ThemeDatabaseSelected(const QString& db);
     Q_INVOKABLE void downloadFile();
-    QString selectedDatabase;
+
     QString const pathSystem = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
     QStringList dataFileFromFtpServer() const;
     void setDataFileFromFtpServer(const QStringList &newDataFileFromFtpServer);
