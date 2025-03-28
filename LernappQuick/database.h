@@ -33,7 +33,7 @@ public:
     Q_INVOKABLE QStringList showLocalDatabase();
     Q_INVOKABLE void deleteLocalFile(QString selectedLocalFileName);
     Q_INVOKABLE void getFileName(const QString& fileName);
-    Q_INVOKABLE QString getNumberOfQuestions(const QString& databaseName);
+    Q_INVOKABLE int getNumberOfQuestions(const QString& databaseName);
 
     const QStringList &listLocalDir() const;
     void setListLocalDir(const QStringList &newListLocalDir);

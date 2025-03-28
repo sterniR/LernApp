@@ -72,7 +72,7 @@ void Database::getFileName(const QString &fileName)
     emit selectedLocalFileNameChanged();
 }
 
-QString Database::getNumberOfQuestions(const QString &databaseName)
+int Database::getNumberOfQuestions(const QString &databaseName)
 {
     if(database.isOpen()) {
         database.close();
@@ -84,12 +84,20 @@ QString Database::getNumberOfQuestions(const QString &databaseName)
     }
 
     QSqlQuery query(database);
+    int sum = -1;
     query.prepare("SELECT COUNT(*) FROM Fragen;");
+
     if(!query.exec()) {
         error_query(query.lastError());
+        return sum;
     }
-    qDebug() << query.lastQuery();
-    return query.lastQuery();
+
+    while(query.next()) {
+        sum = query.value(0).toInt();
+        return sum;
+    }
+
+    return sum;
 }
 
 //Error Message Sql Query

@@ -14,7 +14,8 @@ ApplicationWindow {
     minimumHeight: 680
     visible: true
     title: qsTr("Lernapp")
-    color: "White"
+    color: "white"
+
 
     Network{
         id: backend_Network
@@ -50,6 +51,9 @@ ApplicationWindow {
 
         initialItem: Page { // Seite 1
             id: pageHome
+            background: Rectangle {
+                color: "white"
+            }
             ColumnLayout {
                 id: columnLayout_1
                 spacing: 10
@@ -58,7 +62,7 @@ ApplicationWindow {
                     text: qsTr("Lernapp")
                     font.pointSize: 32
                     font.bold: true
-                    color: "White"
+                    color: "black"
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Button {
@@ -269,7 +273,6 @@ ApplicationWindow {
                 id: columnLayout_3
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                property var countQuestions
 
                 Label {
                     Layout.alignment: Qt.AlignHCenter
@@ -280,6 +283,7 @@ ApplicationWindow {
 
                 Text {
                     Layout.alignment: Qt.AlignHCenter
+                    // horizontalAlignment: Qt.AlignRight
                     text: "Thema: " + backend_Database.selectedLocalFileName
                     font.pointSize: 25
                     color: "green"
@@ -287,22 +291,12 @@ ApplicationWindow {
 
                 Text {
                     Layout.alignment: Qt.AlignHCenter
-                    text: "Fragen: " + columnLayout_3.countQuestions
+                    // horizontalAlignment: Qt.AlignRight
+
+                    text: "Fragen: " + backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
                     font.pointSize: 25
                     color: "black"
                 }
-
-                // ListView {
-                //     Layout.fillHeight: parent
-                //     Layout.fillWidth: parent
-                //     Layout.leftMargin: 50
-                //     Layout.rightMargin: 50
-                //     Layout.topMargin: 50
-                //     Layout.bottomMargin: 50
-
-
-                // }
-
 
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
@@ -315,7 +309,7 @@ ApplicationWindow {
 
                     Button {
                         text: "Lernen beginnen →"
-                        onClicked: stackView_1.push()
+                        onClicked: stackView_1.push(pageFragenBearbeiten)
                     }
 
                 }
@@ -324,6 +318,237 @@ ApplicationWindow {
 
         }
 
+        Page { // Seite 4
+            id: pageFragenBearbeiten
+            visible: false
+            anchors.fill: parent
+
+            header: ToolBar {
+                background: Rectangle {
+                    color: "white"
+                }
+                RowLayout {
+                    anchors.fill: parent
+                    Text {
+                        Layout.alignment: Qt.AlignRight
+
+                        text: "0 / " + backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
+                        font.pixelSize: 32
+                    }
+                }
+            }
+            background: Rectangle {
+                color: "#2a82a4"
+            }
+            StackLayout {
+                id: stackLayout_1
+                anchors.fill: parent
+                currentIndex: 0
+
+                ColumnLayout { // True oder False
+                    id: columnLayoutTrueFalse
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        Layout.topMargin: 50
+                        Layout.bottomMargin: 50
+                        Layout.leftMargin: 50
+                        Layout.rightMargin: 50
+
+                        Label {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: "Frage" // Frage hier rein
+                            font.pixelSize: 48
+                            color: "black"
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: "white"
+                            border.color: "black"
+                            border.width: 5
+                            Text {
+                                anchors.centerIn: parent
+                                text: "1"
+                                color: "black"
+                                font.pixelSize: 24
+                            }
+                        }
+
+                        RowLayout {
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            Button {
+                                Layout.alignment: Qt.AlignHCenter
+                                text: "Richtig"
+                            }
+                            Button {
+                                Layout.alignment: Qt.AlignHCenter
+                                text: "Falsch"
+                            }
+                        }
+                    }
+                }
+
+
+                ColumnLayout { // 3 x Multiple Choise
+                    id: columnLayout3x
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        Layout.topMargin: 50
+                        Layout.bottomMargin: 50
+                        Layout.leftMargin: 50
+                        Layout.rightMargin: 50
+
+                        ButtonGroup {
+                            id: buttonGroupRadioButton
+                        }
+
+                        Label {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: "Frage" // Frage hier rein
+                            font.pixelSize: 48
+                            color: "black"
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: "white"
+                            border.color: "black"
+                            border.width: 5
+                            Text {
+                                anchors.centerIn: parent
+                                text: "2"
+                                color: "black"
+                                font.pixelSize: 24
+                            }
+                        }
+
+                        ListView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            model: ["Option 1", "Option 2", "Option 3"] // Ihr kommen die Antworten rein
+                            delegate: ItemDelegate {
+                                id: item
+                                width: ListView.view.width
+                                height: 50
+                                required property string modelData
+                                ColumnLayout {
+                                    width: parent.width
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 0
+
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            implicitHeight: 50
+                                            color: "white"
+                                            border.color: "black"
+                                            border.width: 5
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: item.modelData
+                                                color: "black"
+                                                font.pixelSize: 24
+                                            }
+                                        }
+                                        Rectangle {
+                                            implicitWidth: 50
+                                            implicitHeight: 50
+                                            color: "white"
+                                            border.color: "black"
+                                            border.width: 5
+                                            RadioButton {
+                                                anchors.centerIn: parent
+                                                ButtonGroup.group: buttonGroupRadioButton
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+                ColumnLayout { // Ein Wort Input
+                    id: columnLayoutOneWord
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        Layout.topMargin: 50
+                        Layout.bottomMargin: 50
+                        Layout.leftMargin: 50
+                        Layout.rightMargin: 50
+
+                        Label {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: "Frage"
+                            font.pixelSize: 48
+                            color: "black"
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: "white"
+                            border.color: "black"
+                            border.width: 5
+                            Text {
+                                anchors.centerIn: parent
+                                text: "3"
+                                color: "black"
+                                font.pixelSize: 24
+                            }
+                        }
+
+                        RowLayout {
+                            Rectangle {
+                                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                Layout.fillWidth: true
+                                implicitHeight: 50
+                                color: "white"
+                                border.color: "black"
+                                border.width: 5
+                                TextInput {
+                                    anchors.centerIn: parent
+                                    text: "Eingabe"
+                                    font.pixelSize: 24
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            footer: ToolBar {
+                background: Rectangle {
+                    color: "purple"
+                }
+
+                RowLayout {
+                    anchors.fill: parent
+
+                    Button {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: "go"
+                        onClicked: stackLayout_1.currentIndex < 2 ? stackLayout_1.currentIndex++ : stackLayout_1.currentIndex = 0
+                    }
+                }
+
+            }
+        }
     }
 
     footer: TabBar {
