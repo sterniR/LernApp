@@ -72,6 +72,37 @@ void Database::getFileName(const QString &fileName)
     emit selectedLocalFileNameChanged();
 }
 
+QString Database::getNumberOfQuestions(const QString &databaseName)
+{
+    if(database.isOpen()) {
+        database.close();
+    }
+    database.setDatabaseName(pathSystem + "/data_Lernapp/datenbank_Lernapp/" + databaseName);
+    if(!database.open())
+    {
+        error_database(database);
+    }
+
+    QSqlQuery query(database);
+    query.prepare("SELECT COUNT(*) FROM Fragen;");
+    if(!query.exec()) {
+        error_query(query.lastError());
+    }
+    qDebug() << query.lastQuery();
+    return query.lastQuery();
+}
+
+//Error Message Sql Query
+void Database::error_database(QSqlDatabase error)
+{
+    qDebug() << "Fehler in der Datenbank: " << error.lastError().text();
+}
+void Database::error_query(QSqlError error)
+{
+    qDebug() << "Fehler in der Query: " << error.text();
+}
+
+//Properties
 const QStringList &Database::listLocalDir() const
 {
     return m_listLocalDir;

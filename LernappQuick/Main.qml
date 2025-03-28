@@ -211,7 +211,9 @@ ApplicationWindow {
                             MouseArea {
                                 id: mouseAreaRefreshLocal
                                 anchors.fill: parent
-                                onClicked: backend_Database.getFileName(itemListView_localDir.modelData) | backend_Database.selectedLocalFileName << itemListView_localDir.modelData
+                                onClicked: backend_Database.getFileName(itemListView_localDir.modelData) |
+                                           backend_Database.selectedLocalFileName << itemListView_localDir.modelData |
+                                           columnLayout_3.countQuestions << backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
                             }
                         }
                     }
@@ -261,28 +263,59 @@ ApplicationWindow {
 
         Page { // Seite 3
             id: pageInfo
-
             visible: false
             anchors.fill: parent
             ColumnLayout {
                 id: columnLayout_3
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-
+                property var countQuestions
 
                 Label {
-
-                    text: backend_Database.selectedLocalFileName
+                    Layout.alignment: Qt.AlignHCenter
+                    text: qsTr("Informationen zum Thema")
                     font.pointSize: 25
                     color: "black"
                 }
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: "Thema: " + backend_Database.selectedLocalFileName
+                    font.pointSize: 25
+                    color: "green"
+                }
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: "Fragen: " + columnLayout_3.countQuestions
+                    font.pointSize: 25
+                    color: "black"
+                }
+
+                // ListView {
+                //     Layout.fillHeight: parent
+                //     Layout.fillWidth: parent
+                //     Layout.leftMargin: 50
+                //     Layout.rightMargin: 50
+                //     Layout.topMargin: 50
+                //     Layout.bottomMargin: 50
+
+
+                // }
+
 
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
                     Layout.bottomMargin: 10
 
                     Button {
+                        text: qsTr("Zurück")
+                        onClicked: stackView_1.pop()
+                    }
+
+                    Button {
                         text: "Lernen beginnen →"
+                        onClicked: stackView_1.push()
                     }
 
                 }

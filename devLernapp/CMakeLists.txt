@@ -35,20 +35,6 @@ CPMAddPackage(
         "BUILD_SHARED_LIBS OFF"
         "BUILD_TESTING OFF"
 )
-# CPMAddPackage(
-#     NAME curl
-#     GITHUB_REPOSITORY "curl/curl"
-#     GIT_TAG "curl-7_82_0"
-#     OPTIONS
-#         "CURL_USE_MBEDTLS OFF"
-#         "CMAKE_USE_LIBSSH2 OFF"
-#         "BUILD_CURL_EXE OFF"
-#         "BUILD_SHARED_LIBS OFF"
-#         "BUILD_TESTING OFF"
-# )
-
-# USE THIS!!!
-
 
 set(PROJECT_SOURCES
         main.cpp

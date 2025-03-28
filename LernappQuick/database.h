@@ -12,6 +12,7 @@
 
 #include <QSql>
 #include <QSqlDatabase>
+#include <QSqlRecord>
 #include <QSqlQuery>
 #include <QSqlError>
 
@@ -26,10 +27,13 @@ public:
 
     QSqlDatabase database;
     QString const pathSystem = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+
+
     Q_INVOKABLE QString setupDatabaseDir();
     Q_INVOKABLE QStringList showLocalDatabase();
     Q_INVOKABLE void deleteLocalFile(QString selectedLocalFileName);
     Q_INVOKABLE void getFileName(const QString& fileName);
+    Q_INVOKABLE QString getNumberOfQuestions(const QString& databaseName);
 
     const QStringList &listLocalDir() const;
     void setListLocalDir(const QStringList &newListLocalDir);
@@ -46,6 +50,10 @@ signals:
 private:
     QStringList m_listLocalDir;
     QString m_selectedLocalFileName;
+
+private slots:
+    void error_database(QSqlDatabase);
+    void error_query(QSqlError);
 };
 
 #endif // DATABASE_H
