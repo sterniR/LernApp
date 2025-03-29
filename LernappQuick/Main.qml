@@ -381,13 +381,47 @@ ApplicationWindow {
 
                         RowLayout {
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
                             Button {
-                                Layout.alignment: Qt.AlignHCenter
-                                text: "Richtig"
+
+                                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                Layout.fillWidth: true
+                                implicitHeight: 50
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Richtig"
+                                    color: "black"
+                                    font.pixelSize: 24
+                                }
+
+                                background: Rectangle {
+
+                                    color: "white"
+                                    border.color: "black"
+                                    border.width: 5
+                                }
                             }
+
                             Button {
-                                Layout.alignment: Qt.AlignHCenter
-                                text: "Falsch"
+
+                                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                Layout.fillWidth: true
+                                implicitHeight: 50
+
+                                background: Rectangle {
+
+                                    color: "white"
+                                    border.color: "black"
+                                    border.width: 5
+                                }
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Falsch"
+                                    color: "black"
+                                    font.pixelSize: 24
+                                }
                             }
                         }
                     }
@@ -436,6 +470,7 @@ ApplicationWindow {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             model: ["Option 1", "Option 2", "Option 3"] // Ihr kommen die Antworten rein
+                            spacing: 20
                             delegate: ItemDelegate {
                                 id: item
                                 width: ListView.view.width
@@ -445,7 +480,6 @@ ApplicationWindow {
                                     width: parent.width
                                     RowLayout {
                                         Layout.fillWidth: true
-                                        spacing: 0
 
                                         Rectangle {
                                             Layout.fillWidth: true
