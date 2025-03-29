@@ -217,7 +217,8 @@ ApplicationWindow {
                                 anchors.fill: parent
                                 onClicked: backend_Database.getFileName(itemListView_localDir.modelData) |
                                            backend_Database.selectedLocalFileName << itemListView_localDir.modelData |
-                                           columnLayout_3.countQuestions << backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
+                                           columnLayout_3.countQuestions << backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName) |
+                                           backend_Database.fillQuestionList()
                             }
                         }
                     }
@@ -309,7 +310,10 @@ ApplicationWindow {
 
                     Button {
                         text: "Lernen beginnen →"
-                        onClicked: stackView_1.push(pageFragenBearbeiten)
+                        onClicked: stackView_1.push(pageFragenBearbeiten) |
+                                   backend_Database.setCurrentIndex(1) |
+                                   backend_Database.showQuestion() |
+                                   backend_Database.counterQuestion == 0
                     }
 
                 }
@@ -322,6 +326,9 @@ ApplicationWindow {
             id: pageFragenBearbeiten
             visible: false
             anchors.fill: parent
+            // property string questionsCounter: backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
+            // property int currentIndexQuestion: backend_Database.currentIndex
+            // property string question: backend_Database.showQuestion()
 
             header: ToolBar {
                 background: Rectangle {
@@ -332,14 +339,16 @@ ApplicationWindow {
                     Text {
                         Layout.alignment: Qt.AlignRight
 
-                        text: "0 / " + backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
+                        text: backend_Database.currentIndex + " / " + backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
                         font.pixelSize: 32
                     }
                 }
             }
+
             background: Rectangle {
                 color: "#2a82a4"
             }
+
             StackLayout {
                 id: stackLayout_1
                 anchors.fill: parent
@@ -360,7 +369,7 @@ ApplicationWindow {
 
                         Label {
                             Layout.alignment: Qt.AlignHCenter
-                            text: "Frage" // Frage hier rein
+                            text: "Frage"
                             font.pixelSize: 48
                             color: "black"
                         }
@@ -373,7 +382,7 @@ ApplicationWindow {
                             border.width: 5
                             Text {
                                 anchors.centerIn: parent
-                                text: "1"
+                                text: backend_Database.question
                                 color: "black"
                                 font.pixelSize: 24
                             }
@@ -424,6 +433,26 @@ ApplicationWindow {
                                 }
                             }
                         }
+                        Button {
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            Layout.fillWidth: true
+                            implicitHeight: 50
+
+                            background: Rectangle {
+
+                                color: "white"
+                                border.color: "black"
+                                border.width: 5
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Weiter →"
+                                color: "black"
+                                font.pixelSize: 24
+                            }
+                            onClicked: backend_Database.nextWord()
+                        }
                     }
                 }
 
@@ -447,7 +476,7 @@ ApplicationWindow {
 
                         Label {
                             Layout.alignment: Qt.AlignHCenter
-                            text: "Frage" // Frage hier rein
+                            text: "Frage"
                             font.pixelSize: 48
                             color: "black"
                         }
@@ -460,7 +489,7 @@ ApplicationWindow {
                             border.width: 5
                             Text {
                                 anchors.centerIn: parent
-                                text: "2"
+                                text: backend_Database.question
                                 color: "black"
                                 font.pixelSize: 24
                             }
@@ -469,7 +498,7 @@ ApplicationWindow {
                         ListView {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            model: ["Option 1", "Option 2", "Option 3"] // Ihr kommen die Antworten rein
+                            model: ["Option 1", "Option 2", "Option 3"] // Ihr kommen die Antworten rein. QStringList, Status 2
                             spacing: 20
                             delegate: ItemDelegate {
                                 id: item
@@ -510,9 +539,31 @@ ApplicationWindow {
 
                             }
                         }
+                        Button {
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            Layout.fillWidth: true
+                            implicitHeight: 50
+
+                            background: Rectangle {
+
+                                color: "white"
+                                border.color: "black"
+                                border.width: 5
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Weiter →"
+                                color: "black"
+                                font.pixelSize: 24
+                            }
+                            onClicked: backend_Database.nextWord()
+                        }
 
                     }
                 }
+
+
                 ColumnLayout { // Ein Wort Input
                     id: columnLayoutOneWord
                     Layout.fillWidth: true
@@ -541,7 +592,7 @@ ApplicationWindow {
                             border.width: 5
                             Text {
                                 anchors.centerIn: parent
-                                text: "3"
+                                text: backend_Database.question
                                 color: "black"
                                 font.pixelSize: 24
                             }
@@ -562,6 +613,26 @@ ApplicationWindow {
                                 }
                             }
                         }
+                        Button {
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            Layout.fillWidth: true
+                            implicitHeight: 50
+
+                            background: Rectangle {
+
+                                color: "white"
+                                border.color: "black"
+                                border.width: 5
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Weiter →"
+                                color: "black"
+                                font.pixelSize: 24
+                            }
+                            onClicked: backend_Database.nextWord()
+                        }
                     }
                 }
             }
@@ -579,6 +650,7 @@ ApplicationWindow {
                         text: "go"
                         onClicked: stackLayout_1.currentIndex < 2 ? stackLayout_1.currentIndex++ : stackLayout_1.currentIndex = 0
                     }
+
                 }
 
             }
