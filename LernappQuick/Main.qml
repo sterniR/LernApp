@@ -217,8 +217,8 @@ ApplicationWindow {
                                 anchors.fill: parent
                                 onClicked: backend_Database.getFileName(itemListView_localDir.modelData) |
                                            backend_Database.selectedLocalFileName << itemListView_localDir.modelData |
-                                           columnLayout_3.countQuestions << backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName) |
-                                           backend_Database.fillQuestionList()
+                                           backend_Database.fillQuestionList() |
+                                           backend_Database.fillStatusList()
                             }
                         }
                     }
@@ -284,7 +284,6 @@ ApplicationWindow {
 
                 Text {
                     Layout.alignment: Qt.AlignHCenter
-                    // horizontalAlignment: Qt.AlignRight
                     text: "Thema: " + backend_Database.selectedLocalFileName
                     font.pointSize: 25
                     color: "green"
@@ -292,7 +291,6 @@ ApplicationWindow {
 
                 Text {
                     Layout.alignment: Qt.AlignHCenter
-                    // horizontalAlignment: Qt.AlignRight
 
                     text: "Fragen: " + backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
                     font.pointSize: 25
@@ -313,22 +311,27 @@ ApplicationWindow {
                         onClicked: stackView_1.push(pageFragenBearbeiten) |
                                    backend_Database.setCurrentIndex(1) |
                                    backend_Database.showQuestion() |
-                                   backend_Database.counterQuestion == 0
+                                   (backend_Database.counterQuestion = 0) |
+                                   Qt.callLater(() => {
+                                           if (backend_Database.statusList.length > 0) {
+                                               stackLayout_1.currentIndex = backend_Database.statusList[0] - 1;
+                                           }
+                                       });
                     }
-
                 }
             }
-
-
         }
 
         Page { // Seite 4
             id: pageFragenBearbeiten
             visible: false
             anchors.fill: parent
-            // property string questionsCounter: backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
-            // property int currentIndexQuestion: backend_Database.currentIndex
-            // property string question: backend_Database.showQuestion()
+
+            onVisibleChanged: {
+                if (visible && backend_Database.statusList.length > 0) {
+                    stackLayout_1.currentIndex = backend_Database.statusList[0] - 1;
+                }
+            }
 
             header: ToolBar {
                 background: Rectangle {
@@ -352,12 +355,13 @@ ApplicationWindow {
             StackLayout {
                 id: stackLayout_1
                 anchors.fill: parent
-                currentIndex: 0
+                property int index: 0
 
                 ColumnLayout { // True oder False
                     id: columnLayoutTrueFalse
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    // visible: false
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -451,7 +455,17 @@ ApplicationWindow {
                                 color: "black"
                                 font.pixelSize: 24
                             }
-                            onClicked: backend_Database.nextWord()
+                            onClicked: {
+                                backend_Database.nextWord();
+                                stackLayout_1.index++;
+
+                                if (stackLayout_1.index >= backend_Database.statusList.length) {
+                                    stackLayout_1.index = 0;
+                                    stackView_1.push(pageReward)
+                                }
+
+                                stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
+                            }
                         }
                     }
                 }
@@ -461,6 +475,7 @@ ApplicationWindow {
                     id: columnLayout3x
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    // visible: false
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -557,7 +572,17 @@ ApplicationWindow {
                                 color: "black"
                                 font.pixelSize: 24
                             }
-                            onClicked: backend_Database.nextWord()
+                            onClicked: {
+                                backend_Database.nextWord();
+                                stackLayout_1.index++;
+
+                                if (stackLayout_1.index >= backend_Database.statusList.length) {
+                                    stackLayout_1.index = 0;
+                                    stackView_1.push(pageReward)
+                                }
+
+                                stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
+                            }
                         }
 
                     }
@@ -568,6 +593,7 @@ ApplicationWindow {
                     id: columnLayoutOneWord
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    // visible: false
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -631,11 +657,23 @@ ApplicationWindow {
                                 color: "black"
                                 font.pixelSize: 24
                             }
-                            onClicked: backend_Database.nextWord()
+                            onClicked: {
+                                backend_Database.nextWord();
+                                stackLayout_1.index++;
+
+                                if (stackLayout_1.index >= backend_Database.statusList.length) {
+                                    stackLayout_1.index = 0;
+                                    stackView_1.push(pageReward)
+                                }
+
+                                stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
+                            }
                         }
                     }
                 }
             }
+
+
 
             footer: ToolBar {
                 background: Rectangle {
@@ -647,18 +685,100 @@ ApplicationWindow {
 
                     Button {
                         Layout.alignment: Qt.AlignHCenter
-                        text: "go"
-                        onClicked: stackLayout_1.currentIndex < 2 ? stackLayout_1.currentIndex++ : stackLayout_1.currentIndex = 0
+                        text: "change status"
+                        onClicked: {
+                            stackLayout_1.currentIndex < 2 ? stackLayout_1.currentIndex++ : stackLayout_1.currentIndex = 0
+                        }
+
                     }
 
+                    Button {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: "go to next status"
+                        // onClicked: {
+                        //     if (backend_Database.statusList.length === 0) return; // Falls Liste leer, tue nichts
+
+                        //     // backend_Database.nextWord(); // Nächstes Wort laden
+
+                        //     if (stackLayout_1.index >= backend_Database.statusList.length - 1) {
+                        //         stackLayout_1.index = 0;
+                        //         stackView_1.push(pageReward);  // Falls am Ende, gehe zur Belohnungsseite
+                        //     } else {
+                        //         stackLayout_1.index++;
+                        //         // backend_Database.nextWord();
+                        //     }
+
+                        //     stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
+                        // }
+                        // // onClicked: {
+                        // //     // stackLayout_1.index = (stackLayout_1.currentIndex + 1) % backend_Database.statusList.length;
+                        // //     // stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
+
+                        // //     if(stackLayout_1.index >= backend_Database.statusList.length - 1) {
+                        // //         stackLayout_1.index = 0;
+                        // //         stackView_1.push(pageReward)
+
+                        // //     } else {
+                        // //         stackLayout_1.index++;
+                        // //     }
+                        // //     stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1
+
+                        // // }
+                    }
+                }
+            }
+        }            
+
+
+        Page { // Seite 5
+            id: pageReward
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            visible: false
+            background: Rectangle {
+                color: "white"
+            }
+            ColumnLayout {
+                anchors.centerIn: parent
+                Label {
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    text: "Du hast _/" + backend_Database.questionList.length + "\n richtig beantwortet. Sehr gut!"
+                    color: "black"
+                    font.pixelSize: 24
+                }
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.fillWidth: true
+                    implicitHeight: 50
+                    Button {
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        text: "Wiederholen"
+
+                    }
+                    Button {
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        text: "Zurück"
+                        onClicked: {
+                            stackView_1.popToIndex(1);
+                            // backend_Database.counterQuestion = 0;
+                            // stackLayout_1.index = 0;
+                        }
+
+                    }
                 }
 
             }
+
         }
+
+
+
     }
+
 
     footer: TabBar {
 
     }
-
 }

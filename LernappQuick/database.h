@@ -25,6 +25,7 @@ class Database : public QObject
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged FINAL)
     Q_PROPERTY(QString question READ question WRITE setQuestion NOTIFY questionChanged FINAL)
     Q_PROPERTY(int counterQuestion READ counterQuestion WRITE setCounterQuestion NOTIFY counterQuestionChanged FINAL)
+    Q_PROPERTY(QStringList statusList READ statusList WRITE setStatusList NOTIFY statusListChanged FINAL)
     QML_ELEMENT
 public:
     explicit Database(QObject *parent = nullptr);
@@ -35,6 +36,7 @@ public:
     Q_INVOKABLE void getFileName(const QString& fileName);
     Q_INVOKABLE int getNumberOfQuestions(const QString& databaseName);
     Q_INVOKABLE void fillQuestionList();
+    Q_INVOKABLE void fillStatusList();
     Q_INVOKABLE void nextWord();
     Q_INVOKABLE QString showQuestion();
 
@@ -56,6 +58,9 @@ public:
     int counterQuestion() const;
     void setCounterQuestion(int newCounterQuestion);
 
+    QStringList statusList() const;
+    void setStatusList(const QStringList &newStatusList);
+
 public slots:
 
 signals:
@@ -68,6 +73,8 @@ signals:
     void questionChanged();
 
     void counterQuestionChanged();
+
+    void statusListChanged();
 
 private:
     QSqlDatabase database;
@@ -83,6 +90,8 @@ private:
     QString m_question;
 
     int m_counterQuestion;
+
+    QStringList m_statusList;
 
 private slots:
     void error_database(QSqlDatabase);

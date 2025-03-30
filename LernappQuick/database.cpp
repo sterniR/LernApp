@@ -124,7 +124,24 @@ void Database::fillQuestionList()
             m_questionList.append(query.value(0).toString());
         }
     }
+    query.clear();
     qDebug() << m_questionList;
+}
+
+void Database::fillStatusList()
+{
+    QSqlQuery query(database);
+    query.prepare("SELECT status FROM Fragen;");
+
+    if(!query.exec()) {
+        error_query(query.lastError());
+    } else {
+        m_statusList.clear();
+        while(query.next()) {
+            m_statusList.append(query.value(0).toString());
+        }
+    }
+    qDebug() << m_statusList;
 }
 
 void Database::nextWord()
@@ -138,8 +155,7 @@ void Database::nextWord()
 
 QString Database::showQuestion()
 {
-    // if(m_questionList.size() > counter) {
-    // }
+
     if(m_questionList.size() > m_counterQuestion) {
         m_question = m_questionList.at(m_counterQuestion);
         emit questionChanged();
@@ -231,4 +247,18 @@ void Database::setCounterQuestion(int newCounterQuestion)
         return;
     m_counterQuestion = newCounterQuestion;
     emit counterQuestionChanged();
+}
+
+
+QStringList Database::statusList() const
+{
+    return m_statusList;
+}
+
+void Database::setStatusList(const QStringList &newStatusList)
+{
+    if (m_statusList == newStatusList)
+        return;
+    m_statusList = newStatusList;
+    emit statusListChanged();
 }
