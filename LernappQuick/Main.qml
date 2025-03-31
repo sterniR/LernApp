@@ -309,9 +309,10 @@ ApplicationWindow {
                     Button {
                         text: "Lernen beginnen →"
                         onClicked: stackView_1.push(pageFragenBearbeiten) |
-                                   backend_Database.setCurrentIndex(1) |
-                                   backend_Database.showQuestion() |
-                                   (backend_Database.counterQuestion = 0) |
+                                   // backend_Database.setCurrentIndex(0) |
+                                   backend_Database.nextWord() |
+                                   /*backend_Database.showQuestion() |*/
+                                   // (backend_Database.counterQuestion = 0) |
                                    Qt.callLater(() => {
                                            if (backend_Database.statusList.length > 0) {
                                                stackLayout_1.currentIndex = backend_Database.statusList[0] - 1;
@@ -459,8 +460,8 @@ ApplicationWindow {
                                 backend_Database.nextWord();
                                 stackLayout_1.index++;
 
-                                if (stackLayout_1.index >= backend_Database.statusList.length) {
-                                    stackLayout_1.index = 0;
+                                if (stackLayout_1.index > backend_Database.statusList.length) {
+                                    // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
 
@@ -576,8 +577,8 @@ ApplicationWindow {
                                 backend_Database.nextWord();
                                 stackLayout_1.index++;
 
-                                if (stackLayout_1.index >= backend_Database.statusList.length) {
-                                    stackLayout_1.index = 0;
+                                if (stackLayout_1.index > backend_Database.statusList.length) {
+                                    // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
 
@@ -661,8 +662,8 @@ ApplicationWindow {
                                 backend_Database.nextWord();
                                 stackLayout_1.index++;
 
-                                if (stackLayout_1.index >= backend_Database.statusList.length) {
-                                    stackLayout_1.index = 0;
+                                if (stackLayout_1.index > backend_Database.statusList.length) {
+                                    // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
 
@@ -695,35 +696,6 @@ ApplicationWindow {
                     Button {
                         Layout.alignment: Qt.AlignHCenter
                         text: "go to next status"
-                        // onClicked: {
-                        //     if (backend_Database.statusList.length === 0) return; // Falls Liste leer, tue nichts
-
-                        //     // backend_Database.nextWord(); // Nächstes Wort laden
-
-                        //     if (stackLayout_1.index >= backend_Database.statusList.length - 1) {
-                        //         stackLayout_1.index = 0;
-                        //         stackView_1.push(pageReward);  // Falls am Ende, gehe zur Belohnungsseite
-                        //     } else {
-                        //         stackLayout_1.index++;
-                        //         // backend_Database.nextWord();
-                        //     }
-
-                        //     stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
-                        // }
-                        // // onClicked: {
-                        // //     // stackLayout_1.index = (stackLayout_1.currentIndex + 1) % backend_Database.statusList.length;
-                        // //     // stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
-
-                        // //     if(stackLayout_1.index >= backend_Database.statusList.length - 1) {
-                        // //         stackLayout_1.index = 0;
-                        // //         stackView_1.push(pageReward)
-
-                        // //     } else {
-                        // //         stackLayout_1.index++;
-                        // //     }
-                        // //     stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1
-
-                        // // }
                     }
                 }
             }
@@ -762,7 +734,9 @@ ApplicationWindow {
                         text: "Zurück"
                         onClicked: {
                             stackView_1.popToIndex(1);
-                            // backend_Database.counterQuestion = 0;
+                            backend_Database.counterQuestion = 0;
+                            backend_Database.currentIndex = 0;
+                            backend_Database.question = "";
                             // stackLayout_1.index = 0;
                         }
 
