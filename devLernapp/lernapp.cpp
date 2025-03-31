@@ -278,10 +278,11 @@ void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
     QFile file;
     QMessageBox::StandardButton reply;
     if(selectedItemLocal != "") {
-        reply = QMessageBox::question(this,"Datenbank wird umbennant!", tr("Die Datei %1 wird zu %2.\nFortfahren?").arg(selectedItemLocal).arg(ui->lineEdit2_3->text()), QMessageBox::Yes | QMessageBox::No);
+        reply = QMessageBox::question(this,"Datenbank wird umbennant!", tr("Die Datei %1 wird zu %2.\nFortfahren?").arg(selectedItemLocal, ui->lineEdit2_3->text()), QMessageBox::Yes | QMessageBox::No);
         if(QMessageBox::Yes == reply) {
             if(QDir::setCurrent(pathSystem + "/data_Lernapp/datenbank_Lernapp")) {
                 file.setFileName(selectedItemLocal);
+                qDebug() << file.QIODevice::isWritable();
                 if(!file.rename(ui->lineEdit2_3->text())) {
                     QMessageBox::warning(this, "Fehler", tr("Datenbank konnte nicht umbenannt werden.\n%1").arg(file.errorString()));
                     qDebug() << file.fileName();
@@ -300,23 +301,6 @@ void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
                 QMessageBox::warning(this, tr("Konnte nicht gelöscht werden!"), tr("%1").arg(file.errorString()));
             }
         }
-        // QDir::setCurrent(pathSystem + "/data_Lernapp/datenbank_Lernapp/");
-        // file.setFileName(selectedItemLocal);
-
-        // if(!file.rename(ui->lineEdit2_3->text())) {
-        //     QMessageBox::warning(this, "Fehler", tr("Datenbank konnte nicht umbenannt werden.\n%1").arg(file.errorString()));
-        //     qDebug() << file.fileName();
-        // } else {
-        //     ui->label2_1->setText(tr("Aktive Datenbank: %1").arg(ui->lineEdit2_3->text()));
-        //     listDatabaseTableView(ui->tableView2_1);
-        //     ui->button5_2->setDisabled(1);
-        //     ui->lineEdit2_3->setDisabled(1);
-        //     ui->button2_4->setDisabled(1);
-        //     ui->tabWidget->setTabEnabled(1, false);
-        //     ui->tabWidget->setTabEnabled(2, false);
-        //     listDatabaseTreeView(ui->treeView5_1);
-        //     selectedItemLocal.clear();
-        // }
     } else {
         QMessageBox::warning(this, "Fehler", "Bitte wählen Sie eine Datenbank vorher aus.");
     }
