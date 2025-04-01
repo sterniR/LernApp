@@ -85,11 +85,11 @@ private:
     QString m_selectedLocalFileName;
     QStringList m_questionList;
 
-    int m_currentIndex;
+    int m_currentIndex = 0;
 
     QString m_question;
 
-    int m_counterQuestion;
+    int m_counterQuestion = 0;
 
     QStringList m_statusList;
 

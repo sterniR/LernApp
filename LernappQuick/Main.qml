@@ -309,6 +309,7 @@ ApplicationWindow {
                     Button {
                         text: "Lernen beginnen →"
                         onClicked: stackView_1.push(pageFragenBearbeiten) |
+                                   backend_Database.fillStatusList |
                                    // backend_Database.setCurrentIndex(0) |
                                    backend_Database.nextWord() |
                                    /*backend_Database.showQuestion() |*/
@@ -326,24 +327,31 @@ ApplicationWindow {
         Page { // Seite 4
             id: pageFragenBearbeiten
             visible: false
-            anchors.fill: parent
+            Layout.fillHeight: true
+            Layout.fillWidth: true
 
             onVisibleChanged: {
                 if (visible && backend_Database.statusList.length > 0) {
-                    stackLayout_1.currentIndex = backend_Database.statusList[0] - 1;
+                    // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
+                    // console.debug(backend_Database.statusList[0] + " statusList[0]");
+                    // console.debug(backend_Database.statusList[0] - 1 + " statusList[0]\n");
+                    stackLayout_1.currentIndex = backend_Database.statusList[0];
+                    // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
+                    // console.debug(backend_Database.statusList[0] + " statusList[0]");
+                    // console.debug(backend_Database.statusList[0] - 1 + + " statusList[0]\n");
                 }
             }
 
             header: ToolBar {
                 background: Rectangle {
-                    color: "white"
+                    color: "#2a82a4"
                 }
                 RowLayout {
                     anchors.fill: parent
                     Text {
                         Layout.alignment: Qt.AlignRight
 
-                        text: backend_Database.currentIndex + " / " + backend_Database.getNumberOfQuestions(backend_Database.selectedLocalFileName)
+                        text: backend_Database.currentIndex + " / " + backend_Database.statusList.length
                         font.pixelSize: 32
                     }
                 }
@@ -362,15 +370,15 @@ ApplicationWindow {
                     id: columnLayoutTrueFalse
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    // visible: false
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
-                        Layout.topMargin: 50
+                        // Layout.topMargin: 50
                         Layout.bottomMargin: 50
                         Layout.leftMargin: 50
                         Layout.rightMargin: 50
+
 
                         Label {
                             Layout.alignment: Qt.AlignHCenter
@@ -460,12 +468,17 @@ ApplicationWindow {
                                 backend_Database.nextWord();
                                 stackLayout_1.index++;
 
-                                if (stackLayout_1.index > backend_Database.statusList.length) {
+                                if (stackLayout_1.index >= backend_Database.statusList.length) {
                                     // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
-
+                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
+                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
+                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                                 stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
+                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
+                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
+                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                             }
                         }
                     }
@@ -476,12 +489,11 @@ ApplicationWindow {
                     id: columnLayout3x
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    // visible: false
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
-                        Layout.topMargin: 50
+                        // Layout.topMargin: 50
                         Layout.bottomMargin: 50
                         Layout.leftMargin: 50
                         Layout.rightMargin: 50
@@ -516,6 +528,8 @@ ApplicationWindow {
                             Layout.fillHeight: true
                             model: ["Option 1", "Option 2", "Option 3"] // Ihr kommen die Antworten rein. QStringList, Status 2
                             spacing: 20
+                            interactive: false
+
                             delegate: ItemDelegate {
                                 id: item
                                 width: ListView.view.width
@@ -577,12 +591,18 @@ ApplicationWindow {
                                 backend_Database.nextWord();
                                 stackLayout_1.index++;
 
-                                if (stackLayout_1.index > backend_Database.statusList.length) {
+                                if (stackLayout_1.index >= backend_Database.statusList.length) {
                                     // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
 
+                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
+                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
+                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                                 stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
+                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
+                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
+                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                             }
                         }
 
@@ -594,12 +614,11 @@ ApplicationWindow {
                     id: columnLayoutOneWord
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    // visible: false
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
-                        Layout.topMargin: 50
+                        // Layout.topMargin: 50
                         Layout.bottomMargin: 50
                         Layout.leftMargin: 50
                         Layout.rightMargin: 50
@@ -662,12 +681,18 @@ ApplicationWindow {
                                 backend_Database.nextWord();
                                 stackLayout_1.index++;
 
-                                if (stackLayout_1.index > backend_Database.statusList.length) {
+                                if (stackLayout_1.index >= backend_Database.statusList.length) {
                                     // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
 
+                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
+                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
+                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                                 stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
+                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
+                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
+                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                             }
                         }
                     }
@@ -676,29 +701,30 @@ ApplicationWindow {
 
 
 
-            footer: ToolBar {
-                background: Rectangle {
-                    color: "purple"
-                }
+            // footer: ToolBar {
+            //     background: Rectangle {
+            //         color: "2a82a4"
+            //     }
 
-                RowLayout {
-                    anchors.fill: parent
 
-                    Button {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: "change status"
-                        onClicked: {
-                            stackLayout_1.currentIndex < 2 ? stackLayout_1.currentIndex++ : stackLayout_1.currentIndex = 0
-                        }
+            //     RowLayout {
+            //         anchors.fill: parent
 
-                    }
+            //         Button {
+            //             Layout.alignment: Qt.AlignHCenter
+            //             text: "change status"
+            //             onClicked: {
+            //                 stackLayout_1.currentIndex < 2 ? stackLayout_1.currentIndex++ : stackLayout_1.currentIndex = 0
+            //             }
 
-                    Button {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: "go to next status"
-                    }
-                }
-            }
+            //         }
+
+            //         Button {
+            //             Layout.alignment: Qt.AlignHCenter
+            //             text: "go to next status"
+            //         }
+            //     }
+            // }
         }            
 
 
@@ -733,11 +759,10 @@ ApplicationWindow {
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                         text: "Zurück"
                         onClicked: {
-                            stackView_1.popToIndex(1);
                             backend_Database.counterQuestion = 0;
                             backend_Database.currentIndex = 0;
-                            backend_Database.question = "";
-                            // stackLayout_1.index = 0;
+                            stackView_1.popToIndex(1);
+                            stackLayout_1.index = 0;
                         }
 
                     }

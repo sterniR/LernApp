@@ -4,7 +4,7 @@ Database::Database(QObject *parent)
     : QObject{parent}
 {
     database = QSqlDatabase::addDatabase("QSQLITE");
-    m_counterQuestion = 0;
+    // m_counterQuestion = 0;
 }
 
 QString Database::setupDatabaseDir() //Erstellte lokale Ordner für die Datenbank
@@ -114,7 +114,7 @@ void Database::error_query(QSqlError error)
 void Database::fillQuestionList()
 {
     QSqlQuery query(database);
-    query.prepare("SELECT frage_text FROM Fragen;");
+    query.prepare("SELECT frage_text FROM Fragen ORDER BY id;");
 
     if(!query.exec()) {
         error_query(query.lastError());
