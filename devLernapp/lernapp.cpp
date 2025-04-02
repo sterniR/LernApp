@@ -275,6 +275,9 @@ void Lernapp::checkboxStateChanged(Qt::CheckState state) // Checkboxes Clicked
 void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
 {
     // database.close() und activateDatabase.close() oder so. Problem bei windows ## FIX ME!
+    if(database.isOpen()) {
+        database.close();
+    }
     QFile file;
     QMessageBox::StandardButton reply;
     if(selectedItemLocal != "") {
@@ -282,7 +285,6 @@ void Lernapp::on_button2_4_clicked() //Datenbank umbenennen
         if(QMessageBox::Yes == reply) {
             if(QDir::setCurrent(pathSystem + "/data_Lernapp/datenbank_Lernapp")) {
                 file.setFileName(selectedItemLocal);
-                qDebug() << file.QIODevice::isWritable();
                 if(!file.rename(ui->lineEdit2_3->text())) {
                     QMessageBox::warning(this, "Fehler", tr("Datenbank konnte nicht umbenannt werden.\n%1").arg(file.errorString()));
                     qDebug() << file.fileName();
@@ -359,7 +361,8 @@ void Lernapp::on_button4_4_clicked() //Download
 
     if(ui->treeWidget->currentItem() != NULL) {
         QTreeWidgetItem *selectedFile = ui->treeWidget->currentItem();
-        QString itemText = selectedFile->text(ui->treeWidget->currentColumn());
+        QString cleanText = selectedFile->text(ui->treeWidget->currentColumn());
+        QString itemText = cleanText.replace("\r","");
 
         ftpUrl += itemText;
 
@@ -640,7 +643,7 @@ void Lernapp::listDatabaseTableView(QTableView* tableView) //TableView mit Inhal
 {
     frageTextKontrolle = ui->textEdit2_1->toPlainText();
 
-    QSqlTableModel *model = new QSqlTableModel;
+    QSqlTableModel *model = new QSqlTableModel(this, database);
     model->setTable("Fragen");
     model->setEditStrategy(QSqlTableModel::OnFieldChange);
     model->select();
