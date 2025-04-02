@@ -4,7 +4,6 @@ Database::Database(QObject *parent)
     : QObject{parent}
 {
     database = QSqlDatabase::addDatabase("QSQLITE");
-    // m_counterQuestion = 0;
 }
 
 QString Database::setupDatabaseDir() //Erstellte lokale Ordner für die Datenbank
@@ -66,14 +65,14 @@ void Database::deleteLocalFile(QString selectedLocalFileName) // Lokale Datenban
     }
 }
 
-void Database::getFileName(const QString &fileName)
+void Database::getFileName(const QString &fileName) // Ausgewählte Datenbank auswählen
 {
     setSelectedLocalFileName(fileName);
     qDebug() << (m_selectedLocalFileName);
     emit selectedLocalFileNameChanged();
 }
 
-int Database::getNumberOfQuestions(const QString &databaseName)
+int Database::getNumberOfQuestions(const QString &databaseName) // Anzahl der Fragen bekommen
 {
     if(database.isOpen()) {
         database.close();
@@ -111,7 +110,7 @@ void Database::error_query(QSqlError error)
     qDebug() << "Fehler in der Query: " << error.text();
 }
 
-void Database::fillQuestionList()
+void Database::fillQuestionList() // Alle Fragen füllen
 {
     QSqlQuery query(database);
     query.prepare("SELECT frage_text FROM Fragen ORDER BY id;");
@@ -122,13 +121,50 @@ void Database::fillQuestionList()
         m_questionList.clear();
         while(query.next()) {
             m_questionList.append(query.value(0).toString());
+            emit questionListChanged();
         }
     }
     query.clear();
     qDebug() << m_questionList;
 }
 
-void Database::fillStatusList()
+void Database::fillTrueFalseList()
+{
+    QSqlQuery query(database);
+    query.prepare("SELECT ist_wahr FROM Fragen ORDER BY id;");
+
+    if(!query.exec()) {
+        error_query(query.lastError());
+    } else {
+        m_optionListFromTrueFalse.clear();
+        while(query.next()) {
+            m_optionListFromTrueFalse.append(query.value(0).toString());
+            emit optionListFromTrueFalseChanged();
+        }
+    }
+    query.clear();
+    qDebug() << m_optionListFromTrueFalse << " Richtig / Ist Wahr";
+}
+
+void Database::fillInputList()
+{
+    QSqlQuery query(database);
+    query.prepare("SELECT antwort_mit_eingabe FROM Fragen ORDER BY id;");
+
+    if(!query.exec()) {
+        error_query(query.lastError());
+    } else {
+        m_optionListFromInput.clear();
+        while(query.next()) {
+            m_optionListFromInput.append(query.value(0).toString());
+            emit optionListFromInputChanged();
+        }
+    }
+    query.clear();
+    qDebug() << m_optionListFromInput << " Input Eingabe";
+}
+
+void Database::fillStatusList() // Alle status/arten von Fragen füllen
 {
     QSqlQuery query(database);
     query.prepare("SELECT status FROM Fragen;");
@@ -139,12 +175,35 @@ void Database::fillStatusList()
         m_statusList.clear();
         while(query.next()) {
             m_statusList.append(query.value(0).toString());
+            emit statusListChanged();
         }
     }
-    qDebug() << m_statusList;
+    qDebug() << m_statusList << " Status Liste";
 }
 
-void Database::nextWord()
+void Database::fillOptionList() // Multiple Choise Antworten füllen
+{
+    QSqlQuery query(database);
+    query.prepare("SELECT ist_wahr_mit_text, ist_falsch_mit_text, ist_falsch2_mit_text FROM Fragen;");
+
+    if(!query.exec()) {
+        error_query(query.lastError());
+    } else {
+        m_optionListFromMultiQuestion.clear();
+        while(query.next()) {
+            QStringList options;
+            options << query.value(0).toString()
+                    << query.value(1).toString()
+                    << query.value(2).toString();
+
+            m_optionListFromMultiQuestion.append(options);
+            emit optionListFromMultiQuestionChanged();
+        }
+    }
+    qDebug() << m_optionListFromMultiQuestion << " 3x Multiple Choise";
+}
+
+void Database::nextWord() // Fragen Zähler erhöhen
 {
     if(m_questionList.size() > m_currentIndex) {
         m_currentIndex++;
@@ -153,7 +212,7 @@ void Database::nextWord()
     showQuestion();
 }
 
-QString Database::showQuestion()
+QString Database::showQuestion() // Frage aktualisieren
 {
 
     if(m_questionList.size() > m_counterQuestion) {
@@ -163,6 +222,65 @@ QString Database::showQuestion()
         emit counterQuestionChanged();
     }
     return m_question;
+}
+
+void Database::checkAnswerTrueFalse(const QString &selected)
+{
+    m_userAnswerTrueFalse = selected;
+    qDebug() << m_userAnswerTrueFalse;
+    if(m_userAnswerTrueFalse == m_optionListFromTrueFalse.at(counter)) {
+        qDebug() << "Richtig";
+        counter++;
+        m_correctPoints = counter;
+        emit correctPointsChanged();
+        qDebug() << counter << " :counter";
+        qDebug() << m_correctPoints << " :Points";
+    } else {
+        qDebug() << "Falsch";
+        counter++;
+        qDebug() << counter << " :counter";
+        qDebug() << m_correctPoints << " :Points";
+    }
+}
+
+void Database::checkAnswerMultiChoise(const QString &selected)
+{
+    m_userAnswerMultiChoise = selected;
+    qDebug() << m_userAnswerMultiChoise;
+
+    QStringList list = m_optionListFromMultiQuestion.at(counter);
+    if(m_userAnswerMultiChoise == list.at(0)) {
+        qDebug() << "Richtig";
+        counter++;
+        m_correctPoints = counter;
+        emit correctPointsChanged();
+        qDebug() << counter << " :counter";
+        qDebug() << m_correctPoints << " :Points";
+    } else {
+        qDebug() << "Falsch";
+        counter++;
+        qDebug() << counter << " :counter";
+        qDebug() << m_correctPoints << " :Points";
+    }
+}
+
+void Database::checkAnswerInput(const QString &selected)
+{
+    m_userAnswerInput = selected;
+    qDebug() << m_userAnswerInput;
+    if(m_userAnswerInput == m_optionListFromInput.at(counter)) {
+        qDebug() << "Richtig";
+        counter++;
+        m_correctPoints = counter;
+        emit correctPointsChanged();
+        qDebug() << counter << " :counter";
+        qDebug() << m_correctPoints << " :Points";
+    } else {
+        qDebug() << "Falsch";
+        counter++;
+        qDebug() << counter << " :counter";
+        qDebug() << m_correctPoints << " :Points";
+    }
 }
 
 //Properties
@@ -261,4 +379,103 @@ void Database::setStatusList(const QStringList &newStatusList)
         return;
     m_statusList = newStatusList;
     emit statusListChanged();
+}
+
+
+QList<QStringList> Database::optionListFromMultiQuestion() const
+{
+    return m_optionListFromMultiQuestion;
+}
+
+void Database::setOptionListFromMultiQuestion(const QList<QStringList> &newOptionListFromMultiQuestion)
+{
+    if (m_optionListFromMultiQuestion == newOptionListFromMultiQuestion)
+        return;
+    m_optionListFromMultiQuestion = newOptionListFromMultiQuestion;
+    emit optionListFromMultiQuestionChanged();
+}
+
+
+QString Database::userAnswerMultiChoise() const
+{
+    return m_userAnswerMultiChoise;
+}
+
+void Database::setUserAnswerMultiChoise(const QString &newUserAnswerMultiChoise)
+{
+    if (m_userAnswerMultiChoise == newUserAnswerMultiChoise)
+        return;
+    m_userAnswerMultiChoise = newUserAnswerMultiChoise;
+    emit userAnswerMultiChoiseChanged();
+}
+
+
+QString Database::userAnswerTrueFalse() const
+{
+    return m_userAnswerTrueFalse;
+}
+
+void Database::setUserAnswerTrueFalse(const QString &newUserAnswerTrueFalse)
+{
+    if (m_userAnswerTrueFalse == newUserAnswerTrueFalse)
+        return;
+    m_userAnswerTrueFalse = newUserAnswerTrueFalse;
+    emit userAnswerTrueFalseChanged();
+}
+
+
+QString Database::userAnswerInput() const
+{
+    return m_userAnswerInput;
+}
+
+void Database::setUserAnswerInput(const QString &newUserAnswerInput)
+{
+    if (m_userAnswerInput == newUserAnswerInput)
+        return;
+    m_userAnswerInput = newUserAnswerInput;
+    emit userAnswerInputChanged();
+}
+
+
+int Database::correctPoints() const
+{
+    return m_correctPoints;
+}
+
+void Database::setCorrectPoints(int newCorrectPoints)
+{
+    counter = 0;
+    if (m_correctPoints == newCorrectPoints)
+        return;
+    m_correctPoints = newCorrectPoints;
+    emit correctPointsChanged();
+}
+
+
+QStringList Database::optionListFromTrueFalse() const
+{
+    return m_optionListFromTrueFalse;
+}
+
+void Database::setOptionListFromTrueFalse(const QStringList &newOptionListFromTrueFalse)
+{
+    if (m_optionListFromTrueFalse == newOptionListFromTrueFalse)
+        return;
+    m_optionListFromTrueFalse = newOptionListFromTrueFalse;
+    emit optionListFromTrueFalseChanged();
+}
+
+
+QStringList Database::optionListFromInput() const
+{
+    return m_optionListFromInput;
+}
+
+void Database::setOptionListFromInput(const QStringList &newOptionListFromInput)
+{
+    if (m_optionListFromInput == newOptionListFromInput)
+        return;
+    m_optionListFromInput = newOptionListFromInput;
+    emit optionListFromInputChanged();
 }

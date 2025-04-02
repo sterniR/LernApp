@@ -14,7 +14,7 @@ ApplicationWindow {
     minimumHeight: 680
     visible: true
     title: qsTr("Lernapp")
-    color: "white"
+    color: "#2a82a4"
 
 
     Network{
@@ -52,7 +52,7 @@ ApplicationWindow {
         initialItem: Page { // Seite 1
             id: pageHome
             background: Rectangle {
-                color: "white"
+                color: "#2a82a4"
             }
             ColumnLayout {
                 id: columnLayout_1
@@ -88,6 +88,10 @@ ApplicationWindow {
             id: pageDownloadFiles
             // title: qsTr("Download")
             visible: false
+
+            background: Rectangle {
+                color: "#2a82a4"
+            }
             ColumnLayout {
                 id: columnLayout_2
                 Layout.fillHeight: true
@@ -218,7 +222,10 @@ ApplicationWindow {
                                 onClicked: backend_Database.getFileName(itemListView_localDir.modelData) |
                                            backend_Database.selectedLocalFileName << itemListView_localDir.modelData |
                                            backend_Database.fillQuestionList() |
-                                           backend_Database.fillStatusList()
+                                           backend_Database.fillStatusList() |
+                                           backend_Database.fillOptionList() |
+                                           backend_Database.fillTrueFalseList() |
+                                           backend_Database.fillInputList()
                             }
                         }
                     }
@@ -270,6 +277,10 @@ ApplicationWindow {
             id: pageInfo
             visible: false
             anchors.fill: parent
+
+            background: Rectangle {
+                color: "#2a82a4"
+            }
             ColumnLayout {
                 id: columnLayout_3
                 Layout.fillHeight: true
@@ -286,7 +297,7 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignHCenter
                     text: "Thema: " + backend_Database.selectedLocalFileName
                     font.pointSize: 25
-                    color: "green"
+                    color: "black"
                 }
 
                 Text {
@@ -308,17 +319,16 @@ ApplicationWindow {
 
                     Button {
                         text: "Lernen beginnen →"
-                        onClicked: stackView_1.push(pageFragenBearbeiten) |
-                                   backend_Database.fillStatusList |
-                                   // backend_Database.setCurrentIndex(0) |
-                                   backend_Database.nextWord() |
-                                   /*backend_Database.showQuestion() |*/
-                                   // (backend_Database.counterQuestion = 0) |
-                                   Qt.callLater(() => {
-                                           if (backend_Database.statusList.length > 0) {
-                                               stackLayout_1.currentIndex = backend_Database.statusList[0] - 1;
-                                           }
-                                       });
+                        onClicked: {
+                            stackView_1.push(pageFragenBearbeiten);
+                            backend_Database.fillStatusList;
+                            backend_Database.nextWord();
+                            Qt.callLater(() => {
+                                             if (backend_Database.statusList.length > 0) {
+                                                 stackLayout_1.currentIndex = backend_Database.statusList[0] - 1;
+                                             }
+                                         });
+                        }
                     }
                 }
             }
@@ -327,18 +337,13 @@ ApplicationWindow {
         Page { // Seite 4
             id: pageFragenBearbeiten
             visible: false
+            property var optionList: backend_Database.optionListFromMultiQuestion[stackLayout_1.index]
             Layout.fillHeight: true
             Layout.fillWidth: true
 
             onVisibleChanged: {
                 if (visible && backend_Database.statusList.length > 0) {
-                    // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
-                    // console.debug(backend_Database.statusList[0] + " statusList[0]");
-                    // console.debug(backend_Database.statusList[0] - 1 + " statusList[0]\n");
                     stackLayout_1.currentIndex = backend_Database.statusList[0];
-                    // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
-                    // console.debug(backend_Database.statusList[0] + " statusList[0]");
-                    // console.debug(backend_Database.statusList[0] - 1 + + " statusList[0]\n");
                 }
             }
 
@@ -370,6 +375,7 @@ ApplicationWindow {
                     id: columnLayoutTrueFalse
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    property string wert: backend_Database.userAnswerTrueFalse
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -405,7 +411,7 @@ ApplicationWindow {
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
                             Button {
-
+                                id: buttonTrueFalse1
                                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                                 Layout.fillWidth: true
                                 implicitHeight: 50
@@ -420,13 +426,17 @@ ApplicationWindow {
                                 background: Rectangle {
 
                                     color: "white"
-                                    border.color: "black"
+                                    border.color: buttonTrueFalse1.down ? "white" : "black"
                                     border.width: 5
+                                }
+
+                                onClicked: {
+                                    columnLayoutTrueFalse.wert = "richtig";
                                 }
                             }
 
                             Button {
-
+                                id: buttonTrueFalse2
                                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                                 Layout.fillWidth: true
                                 implicitHeight: 50
@@ -434,7 +444,7 @@ ApplicationWindow {
                                 background: Rectangle {
 
                                     color: "white"
-                                    border.color: "black"
+                                    border.color: buttonTrueFalse2.down ? "white" : "black"
                                     border.width: 5
                                 }
 
@@ -444,9 +454,14 @@ ApplicationWindow {
                                     color: "black"
                                     font.pixelSize: 24
                                 }
+
+                                onClicked: {
+                                    columnLayoutTrueFalse.wert = "falsch";
+                                }
                             }
                         }
                         Button {
+                            id: buttonWeiter1
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                             Layout.fillWidth: true
                             implicitHeight: 50
@@ -454,7 +469,7 @@ ApplicationWindow {
                             background: Rectangle {
 
                                 color: "white"
-                                border.color: "black"
+                                border.color: buttonWeiter1.down ? "white" : "black"
                                 border.width: 5
                             }
 
@@ -466,19 +481,14 @@ ApplicationWindow {
                             }
                             onClicked: {
                                 backend_Database.nextWord();
+                                backend_Database.checkAnswerTrueFalse(columnLayoutTrueFalse.wert);
+                                // backend_Database.userAnswerTrueFalseChanged();
                                 stackLayout_1.index++;
 
                                 if (stackLayout_1.index >= backend_Database.statusList.length) {
-                                    // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
-                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
-                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
-                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                                 stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
-                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
-                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
-                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                             }
                         }
                     }
@@ -489,6 +499,7 @@ ApplicationWindow {
                     id: columnLayout3x
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    property string wert: backend_Database.userAnswerMultiChoise
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -526,7 +537,7 @@ ApplicationWindow {
                         ListView {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            model: ["Option 1", "Option 2", "Option 3"] // Ihr kommen die Antworten rein. QStringList, Status 2
+                            model: pageFragenBearbeiten.optionList
                             spacing: 20
                             interactive: false
 
@@ -562,6 +573,8 @@ ApplicationWindow {
                                             RadioButton {
                                                 anchors.centerIn: parent
                                                 ButtonGroup.group: buttonGroupRadioButton
+                                                onCheckedChanged: columnLayout3x.wert = item.modelData
+
                                             }
                                         }
                                     }
@@ -570,6 +583,7 @@ ApplicationWindow {
                             }
                         }
                         Button {
+                            id: buttonWeiter2
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                             Layout.fillWidth: true
                             implicitHeight: 50
@@ -577,7 +591,7 @@ ApplicationWindow {
                             background: Rectangle {
 
                                 color: "white"
-                                border.color: "black"
+                                border.color: buttonWeiter2.down ? "white" : "black"
                                 border.width: 5
                             }
 
@@ -589,20 +603,14 @@ ApplicationWindow {
                             }
                             onClicked: {
                                 backend_Database.nextWord();
+                                backend_Database.checkAnswerMultiChoise(columnLayout3x.wert);
+                                // backend_Database.userAnswerMultiChoiseChanged();
                                 stackLayout_1.index++;
 
                                 if (stackLayout_1.index >= backend_Database.statusList.length) {
-                                    // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
-
-                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
-                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
-                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                                 stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
-                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
-                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
-                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                             }
                         }
 
@@ -614,6 +622,7 @@ ApplicationWindow {
                     id: columnLayoutOneWord
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    property string wert: backend_Database.userAnswerInput
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -654,12 +663,14 @@ ApplicationWindow {
                                 border.width: 5
                                 TextInput {
                                     anchors.centerIn: parent
-                                    text: "Eingabe"
+                                    text: "_"
                                     font.pixelSize: 24
+                                    onTextChanged: columnLayoutOneWord.wert = text
                                 }
                             }
                         }
                         Button {
+                            id: buttonWeiter3
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                             Layout.fillWidth: true
                             implicitHeight: 50
@@ -667,7 +678,7 @@ ApplicationWindow {
                             background: Rectangle {
 
                                 color: "white"
-                                border.color: "black"
+                                border.color: buttonWeiter3.down ? "white" : "black"
                                 border.width: 5
                             }
 
@@ -679,52 +690,18 @@ ApplicationWindow {
                             }
                             onClicked: {
                                 backend_Database.nextWord();
+                                backend_Database.checkAnswerInput(columnLayoutOneWord.wert);
                                 stackLayout_1.index++;
 
                                 if (stackLayout_1.index >= backend_Database.statusList.length) {
-                                    // stackLayout_1.index = 0;
                                     stackView_1.push(pageReward)
                                 }
-
-                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
-                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
-                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                                 stackLayout_1.currentIndex = backend_Database.statusList[stackLayout_1.index] - 1;
-                                // console.debug(stackLayout_1.currentIndex + " currentIndex Layout");
-                                // console.debug(backend_Database.statusList[0] + " statusList[0]");
-                                // console.debug(backend_Database.statusList[stackLayout_1.index] - 1 + + " backend_Database.statusList[stackLayout_1.index] - 1\n");
                             }
                         }
                     }
                 }
             }
-
-
-
-            // footer: ToolBar {
-            //     background: Rectangle {
-            //         color: "2a82a4"
-            //     }
-
-
-            //     RowLayout {
-            //         anchors.fill: parent
-
-            //         Button {
-            //             Layout.alignment: Qt.AlignHCenter
-            //             text: "change status"
-            //             onClicked: {
-            //                 stackLayout_1.currentIndex < 2 ? stackLayout_1.currentIndex++ : stackLayout_1.currentIndex = 0
-            //             }
-
-            //         }
-
-            //         Button {
-            //             Layout.alignment: Qt.AlignHCenter
-            //             text: "go to next status"
-            //         }
-            //     }
-            // }
         }            
 
 
@@ -734,7 +711,7 @@ ApplicationWindow {
             Layout.fillHeight: true
             visible: false
             background: Rectangle {
-                color: "white"
+                color: "#2a82a4"
             }
             ColumnLayout {
                 anchors.centerIn: parent
@@ -742,27 +719,29 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    text: "Du hast _/" + backend_Database.questionList.length + "\n richtig beantwortet. Sehr gut!"
+                    text: "🏁 Du hast \n" + backend_Database.correctPoints + "/" + backend_Database.questionList.length + "\nrichtig beantwortet.\nSehr gut!"
                     color: "black"
                     font.pixelSize: 24
+
                 }
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     Layout.fillWidth: true
                     implicitHeight: 50
-                    Button {
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        text: "Wiederholen"
+                    // Button {
+                    //     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    //     text: "Wiederholen"
 
-                    }
+                    // }
                     Button {
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        text: "Zurück"
+                        text: "Startseite"
                         onClicked: {
                             backend_Database.counterQuestion = 0;
                             backend_Database.currentIndex = 0;
-                            stackView_1.popToIndex(1);
+                            backend_Database.setCorrectPoints(0);
                             stackLayout_1.index = 0;
+                            stackView_1.popToIndex(1);
                         }
 
                     }
