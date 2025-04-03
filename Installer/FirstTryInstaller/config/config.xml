@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>BBW-Lernapp</Name>
+    <Version>1.0.0</Version>
+    <Title>BBW-Lernapp Installation</Title>
+    <Publisher>Roman Paryskura FIAE 2022</Publisher>
+    <StartMenuDir>BBW-Lernapp</StartMenuDir>
+    <TargetDir>@HomeDir@</TargetDir>
+</Installer>

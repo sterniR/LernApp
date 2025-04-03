@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>Haupt-Komponente</DisplayName>
+    <Description>Installiert die Software.</Description>
+    <Version>0.1.0-1</Version>
+    <ReleaseDate>2025-04-03</ReleaseDate>
+    <Licenses>
+        <License name="Coffee Public License Agreement" file="license.txt" />
+    </Licenses>
+    <Default>true</Default>
+<!--    <Script>installscript.qs</Script>
+    <UserInterfaces>
+        <UserInterface>page.ui</UserInterface>
+    </UserInterfaces>-->
+</Package>
