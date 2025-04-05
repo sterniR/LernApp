@@ -32,6 +32,7 @@ qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(appLernappQuick
     main.cpp
+    MANUAL_FINALIZATION
 )
 
 qt_add_qml_module(appLernappQuick
@@ -41,21 +42,29 @@ qt_add_qml_module(appLernappQuick
         Main.qml
         SOURCES network.h network.cpp
         SOURCES database.h database.cpp
+        RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
+        RESOURCES android/AndroidManifest.xml android/build.gradle android/res/values/libs.xml android/res/xml/qtprovider_paths.xml android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.properties android/gradle.properties android/gradlew android/gradlew.bat
 )
+
+set_property(TARGET appLernappQuick APPEND PROPERTY
+    QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
+)
+
+qt_finalize_executable(appLernappQuick)
 
 # set_source_files_properties(Main.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-set_target_properties(appLernappQuick PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.appLernappQuick
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
+# # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
+# # If you are developing for iOS or macOS you should consider setting an
+# # explicit, fixed bundle identifier manually though.
+# set_target_properties(appLernappQuick PROPERTIES
+# #    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.appLernappQuick
+#     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+#     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+#     MACOSX_BUNDLE TRUE
+#     WIN32_EXECUTABLE TRUE
+# )
 
 target_link_libraries(appLernappQuick
     PRIVATE Qt6::Quick
