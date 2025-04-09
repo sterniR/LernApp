@@ -25,24 +25,24 @@ ApplicationWindow {
     }
 
 
-    header: ToolBar {
-        id: toolBar
+    // header: ToolBar {
+    //     id: toolBar
 
-        RowLayout {
-            anchors.fill: parent
-            ToolButton {
-                Layout.alignment: Qt.AlignLeft
-                text: qsTr("←")
-                onClicked: stackView_1.pop()
-            }
-            Button {
-                Layout.alignment: Qt.AlignRight
-                text: qsTr("?")
-                ToolTip.visible: down
-                ToolTip.text: qsTr("Lernapp von Roman FIAE 22")
-            }
-        }
-    }
+    //     RowLayout {
+    //         anchors.fill: parent
+    //         ToolButton {
+    //             Layout.alignment: Qt.AlignLeft
+    //             text: qsTr("←")
+    //             onClicked: stackView_1.pop()
+    //         }
+    //         Button {
+    //             Layout.alignment: Qt.AlignRight
+    //             text: qsTr("?")
+    //             ToolTip.visible: down
+    //             ToolTip.text: qsTr("Lernapp von Roman FIAE 22")
+    //         }
+    //     }
+    // }
 
 
     StackView {
@@ -116,16 +116,19 @@ ApplicationWindow {
                     Layout.leftMargin: 50
 
                     model: backend_Network.dataFileFromFtpServer
+                    property int  selectedIndex: -1
 
                     delegate: ItemDelegate {
                         id: itemListView_Server
                         width: ListView.view.width
                         required property string modelData
+                        required property int index
+
                         Rectangle {
                             anchors.fill: parent
-                            color: mouseAreaRefreshServer.pressed ? "blue" : "#2d731e"
+                            color: listView_Server.selectedIndex === itemListView_Server.index ? "#63d94b" : "cyan"
                             border.color: "black"
-                            border.width: 1
+                            border.width: listView_Server.selectedIndex === itemListView_Server.index ? 4 : 1
 
                             Label {
                                 anchors.centerIn: parent
@@ -137,8 +140,10 @@ ApplicationWindow {
                             MouseArea {
                                 id: mouseAreaRefreshServer
                                 anchors.fill: parent
-                                onClicked: backend_Network.ThemeDatabaseSelected(
-                                               itemListView_Server.modelData)
+                                onClicked: {
+                                    listView_Server.selectedIndex = itemListView_Server.index;
+                                    backend_Network.ThemeDatabaseSelected(itemListView_Server.modelData);
+                                }
                             }
                         }
                     }
@@ -195,20 +200,23 @@ ApplicationWindow {
                     Layout.rightMargin: 50
                     Layout.leftMargin: 50
                     model: backend_Database.listLocalDir
+                    property int selectedIndex: -1
 
 
 
                     delegate: ItemDelegate {
                         id: itemListView_localDir
                         required property string modelData
+                        required property int index
 
                         width: ListView.view.width
 
                         Rectangle {
                             anchors.fill: parent
-                            color: mouseAreaRefreshLocal.pressed ? "blue" : "yellow"
+                            // color: mouseAreaRefreshLocal.pressed ? "blue" : "yellow"
+                            color: listView_LocalDir.selectedIndex === itemListView_localDir.index ? "#63d94b" : "cyan"
                             border.color: "Black"
-                            border.width: 1
+                            border.width: listView_LocalDir.selectedIndex === itemListView_localDir.index ? 4 : 1
 
                             Label {
                                 anchors.centerIn: parent
@@ -225,7 +233,8 @@ ApplicationWindow {
                                            backend_Database.fillStatusList() |
                                            backend_Database.fillOptionList() |
                                            backend_Database.fillTrueFalseList() |
-                                           backend_Database.fillInputList()
+                                           backend_Database.fillInputList() |
+                                           (listView_LocalDir.selectedIndex = itemListView_localDir.index)
                             }
                         }
                     }
@@ -380,7 +389,6 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
-                        // Layout.topMargin: 50
                         Layout.bottomMargin: 50
                         Layout.leftMargin: 50
                         Layout.rightMargin: 50
@@ -399,6 +407,7 @@ ApplicationWindow {
                             color: "white"
                             border.color: "black"
                             border.width: 5
+
                             Text {
                                 anchors.centerIn: parent
                                 text: backend_Database.question
